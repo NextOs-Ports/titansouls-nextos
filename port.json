@@ -1,0 +1,17 @@
+{
+  "attr": {
+    "arch": [
+      "aarch64",
+      "armhf"
+    ],
+    "min_glibc": "2.28",
+    "title": "Titan Souls"
+  },
+  "items": [
+    "Titan Souls.sh",
+    "titansouls/"
+  ],
+  "items_opt": [],
+  "name": "titansouls.zip",
+  "version": 4
+}

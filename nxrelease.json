@@ -1,0 +1,284 @@
+{
+  "schema_version": 2,
+  "source_root": ".",
+  "package": {
+    "id": "titansouls",
+    "version": "1.0.0-rc.1",
+    "profile": "universal-portmaster",
+    "launcher": "Titan Souls.sh",
+    "launcher_chain": [
+      "Titan Souls.sh"
+    ],
+    "launcher_contract": {
+      "generator": "nxbootstrap",
+      "version": "0.6.4",
+      "config_path": "titansouls/nxport.json",
+      "config_sha256": "0c68e17bb84c495271c5fbf32f3f0656a7da6a635476bf0b7c859fa0986cef08"
+    },
+    "port_dir": "titansouls",
+    "license": {
+      "spdx_id": "GPL-3.0-only",
+      "source_url": "https://github.com/NextOs-Ports/nextos_ports_android",
+      "file": "titansouls/LICENSE"
+    }
+  },
+  "release": {
+    "source_date_epoch": 1786406400,
+    "max_glibc": "2.30",
+    "compression": "deflated"
+  },
+  "nxextract": {
+    "path": "titansouls/nxextract/nxextract.py",
+    "version": "1.2.6",
+    "minimum_version": "1.2.6",
+    "sha256": "a4a8e5d3bf2a1344491e27921c54430ee9b4e3fedd0160631da96734fa3d5170",
+    "runner_path": "titansouls/nxextract/run-extractor.sh",
+    "runner_sha256": "179b72f02b9dfdf3ed1bdc382d074fb4ef07f83e3d62cfccfc74a950e68679c2",
+    "runtime_env_path": "titansouls/nxextract/nxextract-runtime-env.sh",
+    "runtime_env_sha256": "332919a9960d4317563b647f9932d1a4367da147a425fe2f78eafd706f01563f",
+    "recipe_path": "titansouls/extractor.json",
+    "recipe_sha256": "90f1bc3d365cc4668a75d4be3f61b9b35d398b4d136ca10728a44cf08935dcf1"
+  },
+  "portmaster_metadata": {
+    "port_json": {
+      "path": "titansouls/port.json",
+      "sha256": "1e6536d18774be3163b3b9e4b15340b655447f2d388873b373a83045112dcf37"
+    },
+    "gameinfo_xml": null,
+    "images": []
+  },
+  "dependencies": [
+    {
+      "namespace": "linux",
+      "architecture": "aarch64",
+      "soname": "libc.so.6",
+      "provider": "glibc-base"
+    },
+    {
+      "namespace": "linux",
+      "architecture": "aarch64",
+      "soname": "libdl.so.2",
+      "provider": "glibc-base"
+    },
+    {
+      "namespace": "linux",
+      "architecture": "armv7",
+      "soname": "ld-linux-armhf.so.3",
+      "provider": "firmware"
+    },
+    {
+      "namespace": "linux",
+      "architecture": "armv7",
+      "soname": "libEGL.so.1",
+      "provider": "firmware"
+    },
+    {
+      "namespace": "linux",
+      "architecture": "armv7",
+      "soname": "libGLESv2.so.2",
+      "provider": "firmware"
+    },
+    {
+      "namespace": "linux",
+      "architecture": "armv7",
+      "soname": "libSDL2-2.0.so.0",
+      "provider": "portmaster"
+    },
+    {
+      "namespace": "linux",
+      "architecture": "armv7",
+      "soname": "libc.so.6",
+      "provider": "glibc-base"
+    },
+    {
+      "namespace": "linux",
+      "architecture": "armv7",
+      "soname": "libdl.so.2",
+      "provider": "glibc-base"
+    },
+    {
+      "namespace": "linux",
+      "architecture": "armv7",
+      "soname": "libgcc_s.so.1",
+      "provider": "firmware"
+    },
+    {
+      "namespace": "linux",
+      "architecture": "armv7",
+      "soname": "libm.so.6",
+      "provider": "glibc-base"
+    },
+    {
+      "namespace": "linux",
+      "architecture": "armv7",
+      "soname": "libpthread.so.0",
+      "provider": "glibc-base"
+    }
+  ],
+  "files": [
+    {
+      "source": "Titan Souls.sh",
+      "target": "Titan Souls.sh",
+      "kind": "launcher",
+      "mode": "0755",
+      "sha256": "ff1c361b12cce1b7548ec56afff52bff201bcca67c67ce18d42bec073e9fb1e8"
+    },
+    {
+      "source": "nxport.json",
+      "target": "titansouls/nxport.json",
+      "kind": "nxbootstrap-config",
+      "mode": "0644",
+      "sha256": "0c68e17bb84c495271c5fbf32f3f0656a7da6a635476bf0b7c859fa0986cef08"
+    },
+    {
+      "source": "port-env.sh",
+      "target": "titansouls/port-env.sh",
+      "kind": "script",
+      "mode": "0644",
+      "sha256": "1dd1e7772aa8825aa71174f32b8d1736d68066c78b726fc0e5b8a33bcb798200"
+    },
+    {
+      "source": "build/titansouls-nextos",
+      "target": "titansouls/titansouls-nextos",
+      "kind": "project-linux",
+      "mode": "0755",
+      "architecture": "armv7",
+      "build_profile": "universal-low-glibc",
+      "provenance": "build_universal.sh; pinned offline Debian Buster ARMHF image sha256:58e229c82e8270fd69b0c307654e31793b781218884ce868844597ec4b8c9fef; NextOS SDK used for headers only",
+      "sha256": "ff934a4aaadd029a68328603037c2c155c800c6fb8965db4e966c682bc25048a",
+      "needed": [
+        "ld-linux-armhf.so.3",
+        "libEGL.so.1",
+        "libGLESv2.so.2",
+        "libSDL2-2.0.so.0",
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0"
+      ],
+      "soname": null
+    },
+    {
+      "source": "README.md",
+      "target": "titansouls/README.md",
+      "kind": "payload",
+      "mode": "0644",
+      "sha256": "b06881b60914d45a3d36b5b3fb25552aa73c66e638dbe3885ff1a5fd3c1f43f4"
+    },
+    {
+      "source": "INSTALLATION.md",
+      "target": "titansouls/INSTALLATION.md",
+      "kind": "payload",
+      "mode": "0644",
+      "sha256": "9d685b3fda60fc0470f1a91565c4c4317aa36e0ef043af3a63c61ad9b7f08ab3"
+    },
+    {
+      "source": "NOTICE.md",
+      "target": "titansouls/NOTICE.md",
+      "kind": "license-notice",
+      "mode": "0644",
+      "sha256": "17f56c38ffe6e0eb0967a7a18a167a52e93748def300cf0f3796e4577f772b6b"
+    },
+    {
+      "source": "LICENSE",
+      "target": "titansouls/LICENSE",
+      "kind": "license-notice",
+      "mode": "0644",
+      "sha256": "fd48a1afc565e3b27d07ca190012389f5c0f377abd7285e779c75c58540171ce"
+    },
+    {
+      "source": "BUILD-PROVENANCE.txt",
+      "target": "titansouls/BUILD-PROVENANCE.txt",
+      "kind": "payload",
+      "mode": "0644",
+      "sha256": "672e11f689090803e765417f99f6a6d5190037f563ae0a41a9b0a8e113653743"
+    },
+    {
+      "source": "version.txt",
+      "target": "titansouls/version.txt",
+      "kind": "payload",
+      "mode": "0644",
+      "sha256": "8e3ccfbe492191dbb919be7b4ef3d93bd88f92b1d99532b25ba19c5ad9f1f722"
+    },
+    {
+      "source": "gamedata-template/README.txt",
+      "target": "titansouls/gamedata/README.txt",
+      "kind": "payload",
+      "mode": "0644",
+      "sha256": "d17f9c9846a03a423a3837d745c6fd08cca67da9ab7e96b5532b554c97066f9e"
+    },
+    {
+      "source": "extractor.json",
+      "target": "titansouls/extractor.json",
+      "kind": "nxextract-recipe",
+      "mode": "0644",
+      "sha256": "90f1bc3d365cc4668a75d4be3f61b9b35d398b4d136ca10728a44cf08935dcf1"
+    },
+    {
+      "source": ".build/package-runtime/nxextract/nxextract.py",
+      "target": "titansouls/nxextract/nxextract.py",
+      "kind": "nxextract",
+      "mode": "0644",
+      "sha256": "a4a8e5d3bf2a1344491e27921c54430ee9b4e3fedd0160631da96734fa3d5170"
+    },
+    {
+      "source": ".build/package-runtime/nxextract/run-extractor.sh",
+      "target": "titansouls/nxextract/run-extractor.sh",
+      "kind": "nxextract-runner",
+      "mode": "0644",
+      "sha256": "179b72f02b9dfdf3ed1bdc382d074fb4ef07f83e3d62cfccfc74a950e68679c2"
+    },
+    {
+      "source": ".build/package-runtime/nxextract/nxextract-runtime-env.sh",
+      "target": "titansouls/nxextract/nxextract-runtime-env.sh",
+      "kind": "nxextract-runtime-env",
+      "mode": "0644",
+      "sha256": "332919a9960d4317563b647f9932d1a4367da147a425fe2f78eafd706f01563f"
+    },
+    {
+      "source": ".build/package-runtime/nxextract/nxextract-ui",
+      "target": "titansouls/nxextract/nxextract-ui",
+      "kind": "third-party-linux",
+      "mode": "0755",
+      "architecture": "aarch64",
+      "build_profile": "universal-low-glibc",
+      "provenance": "unmodified canonical NXExtract 1.2.6 UI; MIT; content-pinned AArch64 GLIBC_2.17 build",
+      "sha256": "046afb583f5a211c946495e639409f81d9cfec706788eeccb7924b0e8e5a50b6",
+      "needed": [
+        "libc.so.6",
+        "libdl.so.2"
+      ],
+      "soname": null
+    },
+    {
+      "source": ".build/package-runtime/licenses/NXExtract-MIT.txt",
+      "target": "titansouls/licenses/NXExtract-MIT.txt",
+      "kind": "license-notice",
+      "mode": "0644",
+      "sha256": "74d7d9d40e27fbfe23cb462f9608fa07cbe53ffb0b88a0da9e85dda240c2c788"
+    },
+    {
+      "source": "port.json",
+      "target": "titansouls/port.json",
+      "kind": "portmaster-metadata",
+      "mode": "0644",
+      "sha256": "1e6536d18774be3163b3b9e4b15340b655447f2d388873b373a83045112dcf37"
+    },
+    {
+      "source": "adapter/adapter-contract.json",
+      "target": "titansouls/adapter/adapter-contract.json",
+      "kind": "payload",
+      "mode": "0644",
+      "sha256": "32c37953b67e563700a4d3071094107c744164e95574da89342cc4eba0175adf"
+    },
+    {
+      "source": "nxproject.json",
+      "target": "titansouls/nxproject.json",
+      "kind": "payload",
+      "mode": "0644",
+      "sha256": "bf34109b8d1218f6a718aa0f31fb784efcee29a5c39fef3c4d8a0e27b39c6606"
+    }
+  ],
+  "exceptions": []
+}
