@@ -1,40 +1,70 @@
-# Titan Souls — NextOS compatibility port (ARMv7, BYO data)
+# Titan Souls 1.0.3 — universal ARMv7 Android compatibility port
+
+[![Release](https://img.shields.io/github/v/release/NextOs-Ports/titansouls-nextos?include_prereleases)](https://github.com/NextOs-Ports/titansouls-nextos/releases)
+[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](https://github.com/NextOs-Ports/titansouls-nextos/blob/main/LICENSE)
+[![PortMaster](https://img.shields.io/badge/PortMaster-BYO--data-6f9e44.svg)](https://portmaster.games/)
 
 **Language / Idioma:** [English](#english) · [Português](#português)
 
-The standalone source export contains only port-specific free code, manifests,
-documentation and the installation recipe. The generated launcher and
-redistributable framework runtime are materialized for the data-free public ZIP;
-they are not vendored as framework source in that export. Neither form contains
-Titan Souls, an APK, an OBB, extracted Android libraries, game assets or saves.
+This is an independent compatibility port. The repository contains only the
+port-specific free adapter, tests, manifests, documentation and packaging
+recipes. It deliberately does **not** vendor the shared NextOS framework,
+NXExtract runtime, compiled binaries or proprietary Titan Souls data.
+
+[Download the latest PortMaster package / Baixar o pacote PortMaster](https://github.com/NextOs-Ports/titansouls-nextos/releases)
+
+![Titan Souls](docs/images/cover.jpg)
+
+Official Titan Souls media shown for identification. Game and artwork remain
+property of Acid Nerve and Devolver Digital and are not included in the port.
+
+## Community
+
+Questions, bug reports, help getting the port running, and news about the next
+ports:
+
+💬 **Discord:** [discord.gg/DHfY62eDNN](https://discord.gg/DHfY62eDNN)
 
 ## English
 
-### Status and validation boundary
+### Status
 
-Titan Souls reaches its native Android flow through a Linux ARMHF compatibility
-loader. A binary audit showed that the guest's `ANativeActivity_onCreate` is only
-the stock `android_native_app_glue`: it allocates `android_app`, installs standard
-callbacks and starts a thread that calls `android_main`. The adapter reproduces
-that observable setup under `nxandroid` and delegates directly to the real
-`android_main`, which remains owner of the game loop. The public migration uses
-the current NextOS framework instead of the legacy monolithic loader.
+Titan Souls' original Android ARMv7 build is playable through its native
+NativeActivity flow. The port keeps the game's own `android_main`, rendering,
+FMOD audio, input and save paths while adapting the Android interfaces to Linux
+handheld firmware.
 
 The physical evidence is deliberately split by hardware and artifact:
 
-| Target | Evidence | Status |
+| Physical target | Display / GPU | Validated result |
 |---|---|---|
-| ArkOS, Mali-G31, 640×480 | Predecessor `5b46a16d…` reached gameplay with video, audio, input and persistent save. The last physically tested rebuild, `ff934a4a…`, had its SHA-256 verified on-device and reached the title through the NXExtract marker fast path, pinned modules, pad 1, nxgl, Pulse/ALSA audio, `FRAMEWORK READY` and native CREATE/START. | Tested rebuild quick boot proven; full gameplay acceptance remains tied to the predecessor candidate |
-| NextOS, Mali-450 / Utgard, 1280×720 | Predecessor `5b46a16d…` completed a clean NXExtract install and reached gameplay at about 60 fps with audio, input and save. The RC3 development candidate `81b8a242…` had its SHA-256 verified on-device, expanded the native menu to seven choices, applied Portuguese, initialized FMOD/SDL, reached `FRAMEWORK READY`, and opened both world and boss music streams successfully. | RC3 native-language and normal audio paths physically accepted; the one-pixel tile grid remains an accepted known limitation |
-| ROCKNIX Nightly, Miyoo Flip / RK3566 | The pre-RC4 package reached gameplay but FMOD Ex 4.44.17 reported zero drivers and `FMOD_ERR_NEEDSHARDWARE` before resolving any OpenSL symbol. RC4 test.1 added only proven ARMv7 aliases to FMOD's `/proc/cpuinfo` read; the tester then reported working game audio. Its executable is byte-identical to the final RC4 executable (`5fbe3ec5…`). | ROCKNIX audio correction physically confirmed by tester report; final RC4 ZIP/SHA still needs complete installation/gameplay acceptance |
-| Any other device family | None | Unsupported until the exact same ZIP and SHA-256 pass there |
+| ArkOS, Mali-G31 | 640×480, KMSDRM | gameplay, video, music/SFX, native controller and persistent save; later hardened build reached the title and returned cleanly |
+| NextOS, Mali-450 / Utgard | 1280×720, fbdev/GLES2 | clean NXExtract install, gameplay at about 60 FPS, music/SFX, native controller, save and clean shutdown; a one-pixel tile grid remains a known visual limitation |
+| ROCKNIX Nightly, Miyoo Flip / RK3566 | 640×480, Mali-G52/Wayland | gameplay/video/input reached; RC4's adapter-only FMOD correction restored working audio according to the physical tester |
+| Other device families | — | unvalidated until the same package and SHA-256 pass physically |
 
-Version 1.0.0-rc.4 is therefore a private-test release candidate, not evidence
+Version 1.0.0-rc.4 is therefore a public pre-release candidate, not evidence
 of universal device support. The ROCKNIX audio correction was physically
 confirmed through the test package and its executable is byte-identical to the
 one in RC4. The exact final ZIP/SHA-256 still needs complete physical
 installation and gameplay validation. Passing host gates does not replace that
 proof.
+
+![Exploration in Titan Souls](docs/images/gameplay-forest.jpg)
+
+![A Titan encounter](docs/images/gameplay-boss.jpg)
+
+### Main problems solved
+
+| Symptom | Root cause | Final solution |
+|---|---|---|
+| Android game could not start on Linux | NativeActivity, Bionic and JNI interfaces were unavailable | Preserve the stock Android startup order and delegate to the game's real `android_main` through the ARMv7 compatibility adapter |
+| Video context failed across different firmware | fbdev, KMSDRM and Wayland expose EGL ownership differently | Keep one negotiated SDL/EGL share root and let the guest create its native child context |
+| Music and sound needed Android OpenSL ES | FMOD Ex queues PCM through OpenSL rather than Linux audio APIs | Bridge the exact OpenSL queue contract to SDL audio without changing the game's mixer |
+| ROCKNIX had gameplay but no audio | Legacy FMOD understood ARMv7 `vfp/neon`, while the AArch64 kernel reports equivalent `fp/asimd` names | Translate only those proven names for the pinned guest's `/proc/cpuinfo` read; no global framework quirk |
+| Android menu exposed only two language choices | Complete language columns shipped in the game but were hidden by the Android toggle | Extend the native Options toggle to English, French, German, Portuguese and Spanish and save through the game's own config path |
+| Owner data could be installed partially | Manual APK/OBB extraction was not transactional | NXExtract validates the exact v1.0.3 inputs, stages them and commits only a complete payload |
+| Mali-450 shows a one-pixel tile grid | The exact Utgard sampling/coverage cause is not yet proven | Keep the bounded experiment port-local and document the visual limitation instead of applying a global texture workaround |
 
 ### Architecture
 
@@ -133,7 +163,19 @@ content rather than by their filename and accepts the pinned `armeabi-v7a`
 engine/FMOD libraries, APK assets and `main.31.com.devolver.titansouls.obb`.
 See [INSTALLATION.md](INSTALLATION.md) for the public package layout.
 
+Quick installation:
+
+1. Extract the latest release ZIP into the firmware's `ports` directory.
+2. Put a lawful Titan Souls Android v1.0.3 APK and matching
+   `main.31.com.devolver.titansouls.obb` in `titansouls/gamedata/`.
+3. Launch **Titan Souls**; NXExtract validates and installs the data on the
+   first run.
+
 ### Build and host gates
+
+The shared NextOS framework is intentionally external to this repository. A
+standalone checkout must point the build at an authorized framework checkout;
+framework source and generated runtime files must not be committed here.
 
 ```bash
 # Run from this port directory (the standalone repository root).
@@ -199,30 +241,36 @@ rightsholders' terms and are outside these licences. See `NOTICE.md`.
 
 ## Português
 
-### Estado e limite da validação
+### Estado
 
-Titan Souls percorre seu fluxo Android nativo por um loader de compatibilidade
-Linux ARMHF. A auditoria binária mostrou que `ANativeActivity_onCreate` contém
-somente o `android_native_app_glue` padrão: cria `android_app`, instala callbacks
-e abre uma thread que chama `android_main`. O adapter reproduz esse resultado
-observável sob `nxandroid` e delega diretamente ao `android_main` real, que
-continua dono do loop. A migração usa o framework atual do NextOS no lugar do
-loader monolítico legado.
+O build Android ARMv7 original de Titan Souls roda pelo fluxo nativo de
+NativeActivity. O port conserva o `android_main`, renderização, áudio FMOD,
+controle e save do próprio jogo, adaptando somente as interfaces Android para
+os firmwares Linux dos portáteis.
 
 A evidência física está separada por hardware e por artefato:
 
-| Alvo | Evidência | Estado |
+| Alvo físico | Tela / GPU | Resultado validado |
 |---|---|---|
-| ArkOS, Mali-G31, 640×480 | O predecessor `5b46a16d…` chegou ao gameplay com vídeo, áudio, controle e save persistente. O último rebuild testado fisicamente, `ff934a4a…`, teve SHA-256 conferido no aparelho e chegou ao título pelo fast path do marcador NXExtract, módulos pinados, pad 1, nxgl, áudio Pulse/ALSA, `FRAMEWORK READY` e CREATE/START nativos. | Boot rápido do rebuild testado provado; a aceitação de gameplay completo ainda pertence ao candidato predecessor |
-| NextOS, Mali-450 / Utgard, 1280×720 | O predecessor `5b46a16d…` fez instalação limpa pelo NXExtract e chegou ao gameplay a cerca de 60 fps com áudio, controle e save. O candidato de desenvolvimento RC3 `81b8a242…` teve SHA-256 conferido no aparelho, expandiu o menu nativo para sete escolhas, aplicou português, inicializou FMOD/SDL, atingiu `FRAMEWORK READY` e abriu corretamente os streams de música do mundo e do chefe. | Idioma nativo e caminho normal de áudio do RC3 aceitos fisicamente; a grade de um pixel permanece como limitação conhecida aceita |
-| ROCKNIX Nightly, Miyoo Flip / RK3566 | O pacote anterior ao RC4 chegou ao gameplay, mas o FMOD Ex 4.44.17 informou zero drivers e `FMOD_ERR_NEEDSHARDWARE` antes de resolver qualquer símbolo OpenSL. O RC4 test.1 adicionou apenas aliases ARMv7 comprovados à leitura de `/proc/cpuinfo` feita pelo FMOD; o testador então confirmou que o áudio do jogo funcionou. O executável é byte-idêntico ao executável final do RC4 (`5fbe3ec5…`). | Correção de áudio no ROCKNIX confirmada fisicamente pelo relato do testador; o ZIP/SHA final do RC4 ainda precisa de aceitação completa de instalação/gameplay |
-| Qualquer outra família | Nenhuma | Sem suporte até o mesmo ZIP e SHA-256 passar nela |
+| ArkOS, Mali-G31 | 640×480, KMSDRM | gameplay, vídeo, música/efeitos, controle nativo e save persistente; build endurecido posterior chegou ao título e voltou corretamente |
+| NextOS, Mali-450 / Utgard | 1280×720, fbdev/GLES2 | instalação limpa pelo NXExtract, gameplay a cerca de 60 FPS, música/efeitos, controle nativo, save e saída limpa; permanece uma grade visual de um pixel |
+| ROCKNIX Nightly, Miyoo Flip / RK3566 | 640×480, Mali-G52/Wayland | gameplay/vídeo/controle alcançados; a correção local de FMOD do RC4 restaurou o áudio segundo o testador físico |
+| Outras famílias | — | não validadas até o mesmo pacote e SHA-256 passarem fisicamente |
 
-Logo, a versão 1.0.0-rc.4 é candidata de teste privado, não prova de suporte
+Logo, a versão 1.0.0-rc.4 é uma pré-release pública, não prova de suporte
 universal. A correção de áudio no ROCKNIX foi confirmada fisicamente com o
 pacote de teste, cujo executável é byte-idêntico ao usado no RC4. O ZIP/SHA-256
 final exato ainda requer instalação e validação física completa de gameplay.
 Gate de host não substitui essa prova.
+
+### Principais problemas resolvidos
+
+A tabela “Main problems solved” da seção em inglês registra sintomas, causas e
+soluções. Em resumo, o port preserva o lifecycle Android nativo, adapta EGL,
+OpenSL/SDL e controle, completa os idiomas já presentes no jogo e instala os
+dados do usuário de forma transacional. A compatibilidade de CPU que resolveu o
+áudio no ROCKNIX fica somente no adapter de Titan Souls; não virou comportamento
+global do framework.
 
 ### Arquitetura
 
@@ -317,11 +365,21 @@ pelo conteúdo, não pelo nome, e aceita as bibliotecas `armeabi-v7a` pinadas, o
 assets do APK e `main.31.com.devolver.titansouls.obb`. Veja
 [INSTALLATION.md](INSTALLATION.md) para a árvore do pacote público.
 
+Instalação rápida:
+
+1. Extraia o ZIP da release na pasta `ports` do firmware.
+2. Coloque um APK Android v1.0.3 legal e o OBB correspondente em
+   `titansouls/gamedata/`.
+3. Abra **Titan Souls**; o NXExtract valida e instala os dados na primeira vez.
+
 ### Compilação, fontes e licenças
 
 Os comandos e o mapa de fontes da seção em inglês valem igualmente aqui. O
 executável público chama-se `titansouls-nextos`; o perfil ARMHF declara glibc
 mínima 2.28 e recusa qualquer ELF Linux acima de GLIBC_2.30.
+
+O framework NextOS compartilhado é uma dependência externa intencional. Suas
+fontes e runtimes gerados não devem ser adicionados a este repositório.
 
 O loader e a integração NextOS são GPL-3.0-only. NXExtract é MIT. Titan Souls,
 a engine Android, o binário FMOD Ex, arte, música e demais dados do dono continuam

@@ -27,6 +27,11 @@ rightsholders. They are not covered by the GPL or MIT licences and are never
 present in the public ZIP. Users must provide them from their own lawful Android
 copy.
 
+The unmodified official store media under `docs/images/` is included only for
+identification and documentation on the project page. It is not a runtime or
+build input, is excluded from the release ZIP, and remains © Acid Nerve /
+Devolver Digital.
+
 This independent interoperability project is not official and is not affiliated
 with or endorsed by Acid Nerve, Devolver Digital, Abstraction Games, Firelight
 Technologies, Google or another rightsholder.
@@ -45,3 +50,7 @@ O jogo, APK, OBB, bibliotecas Android, binário FMOD Ex, assets, arte, música,
 efeitos, saves e marcas pertencem aos respectivos titulares. Eles não são
 cobertos pelas licenças livres deste projeto e nunca entram no ZIP público. Cada
 usuário deve fornecer os dados de sua própria cópia Android obtida legalmente.
+
+As mídias oficiais sem modificação em `docs/images/` servem somente para
+identificação e documentação na página do projeto. Elas não entram no runtime,
+no build nem no ZIP da release e continuam © Acid Nerve / Devolver Digital.
