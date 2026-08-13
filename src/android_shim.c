@@ -501,15 +501,16 @@ static int g_input_pipe[2] = {-1, -1};
 int ALooper_pollAll(int timeoutMillis, int *outFd, int *outEvents,
                     void **outData) {
   LooperImpl *l = tls_looper;
+  static int heartbeat_enabled = -1;
 
   /* Bombeia o host ANTES de qualquer bloqueio: e' aqui que o pad vira evento
    * Android e que o combo de saida e' checado. */
   process_sdl_events();
 
-  /* HEARTBEAT: "deveria estar rodando" nao conta. Uma linha a cada ~2s diz se
-   * o laco da engine gira, se ela ja' pegou a janela e quantos eventos estao
-   * na fila — e' o que separa "travou" de "esta' carregando". */
-  {
+  /* Diagnostico opt-in: TS_HEARTBEAT=1 relata o looper a cada ~2s. */
+  if (heartbeat_enabled < 0)
+    heartbeat_enabled = ts_env_enabled("TS_HEARTBEAT");
+  if (heartbeat_enabled) {
     static unsigned n;
     static Uint32 last;
     n++;
@@ -678,8 +679,8 @@ void AConfiguration_delete(void *c) { (void)c; }
 void AConfiguration_fromAssetManager(void *c, void *am) { (void)c; (void)am; }
 void AConfiguration_setLocale(void *c, const char *l) { (void)c; (void)l; }
 
-/* REGRA #5: o jogo e' publicado em INGLES. O idioma vem daqui e do
- * config.txt (<language lang="english"/>); nunca deduzir do locale do CFW. */
+/* A escolha manual pertence ao menu nativo do jogo. A camada Android conserva
+ * o fallback historico em ingles; o adapter do menu trata os cinco idiomas. */
 int AConfiguration_getLanguage(void *c, char *out) {
   (void)c;
   if (out) { out[0] = 'e'; out[1] = 'n'; }

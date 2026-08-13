@@ -12,7 +12,7 @@
 #include "nxcompat.h"
 #include "nxinput_nxcompat.h"
 
-#define TS_AUDIO_CONTRACT_ID "titansouls-fmodex-opensl-sdl-v1"
+#define TS_AUDIO_CONTRACT_ID "titansouls-fmodex-opensl-sdl-v2"
 
 typedef struct ts_framework_state {
     nxcompat_host host;

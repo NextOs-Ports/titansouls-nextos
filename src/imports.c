@@ -22,7 +22,9 @@
 #define _GNU_SOURCE
 #endif
 #include <dlfcn.h>
+#include <fcntl.h>
 #include <regex.h>
+#include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,6 +34,7 @@
 #include "android_shim.h"
 #include "asset_shim.h"
 #include "bionic_compat.h"
+#include "cpuinfo_compat.h"
 #include "egl_shim.h"
 #include "hueshift_shader_fix.h"
 #include "imports.h"
@@ -150,6 +153,55 @@ static long ts_sysconf(int android_name) {
   }
 }
 
+/* ---- CPU capabilities across the 32/64-bit kernel boundary -------------
+ * FMOD Ex 4.44 parses /proc/cpuinfo itself and only recognizes the ARMv7
+ * spellings vfp/vfpv3/neon.  A 32-bit guest on an AArch64 kernel sees the
+ * equivalent features as fp/asimd, so FMOD returns NEEDSHARDWARE before it
+ * resolves a single OpenSL symbol.  Preserve the native probe and add only
+ * proven aliases to the first read of this exact procfs file. */
+static int g_cpuinfo_fd = -1;
+static int g_cpuinfo_alias_log_emitted;
+
+static int __attribute__((pcs("aapcs"))) ts_open(const char *path, int flags,
+                                                   ...) {
+  mode_t mode = 0;
+  int fd;
+
+  if (flags & O_CREAT) {
+    va_list args;
+    va_start(args, flags);
+    mode = (mode_t)va_arg(args, int);
+    va_end(args);
+    fd = asm2_open(path, flags, mode);
+  } else {
+    fd = asm2_open(path, flags);
+  }
+  if (fd >= 0 && path && strcmp(path, "/proc/cpuinfo") == 0)
+    g_cpuinfo_fd = fd;
+  return fd;
+}
+
+static ssize_t __attribute__((pcs("aapcs"))) ts_read(int fd, void *buffer,
+                                                       size_t count) {
+  ssize_t result = read(fd, buffer, count);
+
+  if (fd == g_cpuinfo_fd && result >= 0) {
+    g_cpuinfo_fd = -1;
+    if (result > 0) {
+      size_t length = (size_t)result;
+      if (ts_cpuinfo_add_armv7_aliases((char *)buffer, &length, count) == 1) {
+        result = (ssize_t)length;
+        if (!g_cpuinfo_alias_log_emitted) {
+          logPrintf("[fmod/cpuinfo] fp/asimd -> vfp/vfpv3/neon para guest "
+                    "ARMv7\n");
+          g_cpuinfo_alias_log_emitted = 1;
+        }
+      }
+    }
+  }
+  return result;
+}
+
 /* ---- pthread_setname_np recebe o pthread_t do BIONIC (um inteiro de 32
  * bits), nao o opaco da glibc. Passar isso direto para o host e' ponteiro
  * invalido. O nome da thread nao muda nada no jogo, entao a resposta honesta
@@ -231,6 +283,8 @@ extern int ts_fmod_createSound(void *system, const char *name,
 extern int ts_fmod_setFileSystem(void *system, void *open, void *close,
                                  void *read, void *seek, void *aread,
                                  void *acancel, int align);
+extern int ts_fmod_init(void *system, int maxchannels, unsigned int flags,
+                        void *extradriverdata);
 
 #define TS_SYM_STREAM \
   "_ZN4FMOD6System12createStreamEPKcjP22FMOD_CREATESOUNDEXINFOPPNS_5SoundE"
@@ -239,6 +293,7 @@ extern int ts_fmod_setFileSystem(void *system, void *open, void *close,
 #define TS_SYM_SETFS                                                          \
   "_ZN4FMOD6System13setFileSystemEPF11FMOD_RESULTPKciPjPPvS6_EPFS1_S5_S5_EPF" \
   "S1_S5_S5_jS4_S5_EPFS1_S5_jS5_EPFS1_P18FMOD_ASYNCREADINFOS5_ESA_i"
+#define TS_SYM_INIT "_ZN4FMOD6System4initEijPv"
 
 /* ---- Amazon GameCircle: a lib nao e' carregada (periferico puro). Os
  * simbolos precisam existir para a engine linkar; devolvem "ok/desconectado"
@@ -579,7 +634,7 @@ DynLibFunction ts_imports[] = {
     TS("getcwd", asm2_getcwd),
     TS("mkdir", asm2_mkdir),
     TS("mkstemp", asm2_mkstemp),
-    TS("open", asm2_open),
+    TS("open", ts_open),
     TS("opendir", asm2_opendir),
     TS("readdir", asm2_readdir),
     TS("remove", asm2_remove),
@@ -597,6 +652,7 @@ DynLibFunction ts_imports[] = {
     TS("regcomp", ts_regcomp),
     TS("regexec", ts_regexec),
     TS("regfree", ts_regfree),
+    TS("read", ts_read),
 
     /* ---------------- pthread/sem: objetos bionic sao menores -------- */
     TS("pthread_attr_init", asm2_pthread_attr_init),
@@ -837,6 +893,7 @@ DynLibFunction ts_imports[] = {
     TS(TS_SYM_STREAM, ts_fmod_createStream),
     TS(TS_SYM_SOUND, ts_fmod_createSound),
     TS(TS_SYM_SETFS, ts_fmod_setFileSystem),
+    TS(TS_SYM_INIT, ts_fmod_init),
 
     /* ---------------- Amazon GameCircle: periferico, "ok" ----------- */
     TS("_ZN11AmazonGames17WhispersyncClient11getGameDataEv", ag_null),

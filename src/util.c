@@ -8,6 +8,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "util.h"
 
@@ -29,8 +30,19 @@
 static int coi_debug_on(void) {
   static int dbg = -1;
   if (dbg < 0)
-    dbg = getenv("TS_DEBUG") ? 1 : 0;
+    dbg = ts_env_enabled("TS_DEBUG");
   return dbg;
+}
+
+int ts_env_enabled(const char *name) {
+  const char *value = name ? getenv(name) : NULL;
+
+  if (!value || !value[0])
+    return 0;
+  return strcmp(value, "0") != 0 && strcmp(value, "false") != 0 &&
+         strcmp(value, "FALSE") != 0 && strcmp(value, "off") != 0 &&
+         strcmp(value, "OFF") != 0 && strcmp(value, "no") != 0 &&
+         strcmp(value, "NO") != 0;
 }
 
 int logPrintf(const char *text, ...) {

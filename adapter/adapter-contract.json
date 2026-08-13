@@ -6,8 +6,9 @@
       "OpenSL BufferQueue RegisterCallback",
       "SDL output callback"
     ],
-    "contract": "titansouls-fmodex-opensl-sdl-v1",
-    "implementation": "nxaudio-validated FMOD Ex to OpenSL ES to SDL bridge"
+    "contract": "titansouls-fmodex-opensl-sdl-v2",
+    "implementation": "nxaudio-validated FMOD Ex to OpenSL ES to SDL bridge; FMOD Ex 4.44.17 NOSOUND-to-OpenSL recovery and at most one compatible output retry; SDL default first and compiled ALSA fallback only after a real open failure without an explicit backend; adapter-only translation of proven AArch64 fp/asimd CPU feature names for the legacy ARMv7 FMOD probe",
+    "physical_status": "predecessor audio proven on ArkOS and NextOS; RC4 test executable audio confirmed by tester report on ROCKNIX Nightly / Miyoo Flip RK3566"
   },
   "framework": {
     "host_gates": [
@@ -47,6 +48,22 @@
     "mapping": "firmware SDL GameController mapping to Android key and motion events",
     "terminal_combo": "Select+Start and SIGTERM request the same focus-loss, save-state and pause path",
     "touch": null
+  },
+  "language": {
+    "clean_install_default": "english",
+    "implementation": "version-gated hooks complete the original Android System/Titan toggle; ApplyLanguage delegates to native Language::ChangeLanguage and ConfigSave::Save",
+    "italian": "withheld because text data exists but this Android guest does not recognize an Italian language key safely",
+    "launcher_override": false,
+    "order": [
+      "systemlang",
+      "english",
+      "french",
+      "german",
+      "portuguese",
+      "spanish",
+      "titan"
+    ],
+    "surface": "native OptionsMenu toggle"
   },
   "dynamic_imports": {
     "fixed_guest_observed_requests": "exact OpenSL ES surface plus __android_log_write through RTLD_DEFAULT",
@@ -97,6 +114,18 @@
   },
   "physical_validation": [
     {
+      "default": "enabled only for the pinned Titan Souls FMOD Ex 4.44.17 guest",
+      "effect": "preserve native /proc/cpuinfo and add ARMv7 vfp/vfpv3/vfpv3d16/neon aliases only when AArch64 architecture 8+ exposes the proven equivalent fp/asimd features",
+      "id": "titansouls.fmod-armv7-cpuinfo-aliases",
+      "physical_status": "RC4 test executable restored audio on ROCKNIX Nightly / Miyoo Flip RK3566 according to the physical tester",
+      "selector": "exact /proc/cpuinfo open and first read by the pinned legacy guest",
+      "source_evidence": [
+        "src/imports.c",
+        "src/cpuinfo_compat.c",
+        "tests/test_cpuinfo_compat.c"
+      ]
+    },
+    {
       "artifact": "framework candidate 5b46a16d8f587c7937154fc8bb431d97ff281a3b876d1da496e6bb69fdab3095",
       "family": "ArkOS Mali-G31",
       "status": "boot-title-slot-world-video-audio-input-save-approved"
@@ -115,6 +144,21 @@
       "artifact": "final hardening rebuild ff934a4aaadd029a68328603037c2c155c800c6fb8965db4e966c682bc25048a",
       "family": "NextOS Mali-450 Utgard",
       "status": "on-device-sha-verified; nxextract-marker-fast-path; modules-pad1-nxgl-pulse-alsa-framework-ready; native-create-start-title; clean-stop; exact-final-full-gameplay-pending"
+    },
+    {
+      "artifact": "RC3 development candidate 81b8a242a9d780656caebd163932440da79dd6b486ac32ed8b7462cd25cfdf31",
+      "family": "NextOS Mali-450 Utgard",
+      "status": "on-device-sha-verified; seven-choice native language menu physically accepted in Portuguese; FMOD and SDL initialized; FRAMEWORK READY; boss and world music streams opened; clean native shutdown"
+    },
+    {
+      "artifact": "pre-RC3 package",
+      "family": "ROCKNIX Nightly / Miyoo Flip RK3566",
+      "status": "negative baseline: gameplay reached without sound; FMOD Ex reported zero drivers and FMOD_ERR_NEEDSHARDWARE before resolving OpenSL; later streams returned FMOD_ERR_UNINITIALIZED"
+    },
+    {
+      "artifact": "RC4 test executable 5fbe3ec54bc709748edc02dbae230f2494de2d190fbb5e76c83e2c31b1642087",
+      "family": "ROCKNIX Nightly / Miyoo Flip RK3566",
+      "status": "physical tester reported working game audio after the adapter-only legacy FMOD CPU-feature translation"
     }
   ],
   "prohibitions": [
@@ -139,7 +183,7 @@
     }
   ],
   "release_ready": false,
-  "release_boundary": "private-test RC; exact final binary quick boot proven on ArkOS Mali-G31 and NextOS Mali-450, but full gameplay of the exact packaged ZIP/SHA and universal support are not proven",
+  "release_boundary": "private-test RC4; native language and normal FMOD/SDL audio are physically accepted on NextOS Mali-450; RC4 executable audio is tester-confirmed on ROCKNIX Nightly / Miyoo Flip RK3566; complete physical acceptance of the final RC4 ZIP/SHA remains pending",
   "schema": "nxadapter-skeleton-v1",
   "schema_version": 1,
   "status": "implemented_private_test_release_candidate",

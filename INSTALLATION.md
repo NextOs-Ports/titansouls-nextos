@@ -33,6 +33,11 @@
    installs them transactionally. Keep the device powered until setup reports
    success.
 
+Language is selected inside the game's native **Options → Language** menu.
+Available choices are System Language, English, Français, Deutsch, Português,
+Español and Titan; the game saves the choice itself. There is no language
+setting to edit in the launcher.
+
 Later launches validate the installation marker and do not repeat extraction.
 NXExtract preserves the files in `gamedata/`; a wrong or incomplete edition is
 rejected before a working installation is replaced. If setup fails, inspect
@@ -57,6 +62,11 @@ the host-side observability tool and is not part of the ZIP.
    pelo conteúdo, valida as bibliotecas ARMv7, os assets e o OBB exatos e instala
    tudo de forma transacional. Mantenha o aparelho ligado até a mensagem de
    sucesso.
+
+Escolha o idioma dentro do menu nativo **Opções → Idioma**. As opções são
+Idioma do Sistema, English, Français, Deutsch, Português, Español e Titan; o
+próprio jogo salva a escolha. Não existe configuração de idioma para editar no
+launcher.
 
 Nos próximos lançamentos, o marcador validado evita repetir a extração. O
 NXExtract preserva os arquivos em `gamedata/`; uma edição errada ou incompleta é

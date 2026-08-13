@@ -906,6 +906,7 @@ static void coi_stack_shrink(void) {
 }
 
 EGLBoolean egl_shim_SwapBuffers(EGLDisplay dpy, EGLSurface surface) {
+  static int perf_enabled = -1;
   _egl_surface *window_surface;
   _egl_context *context;
   if (!egl_display_valid(dpy))
@@ -934,9 +935,10 @@ EGLBoolean egl_shim_SwapBuffers(EGLDisplay dpy, EGLSurface surface) {
   /* NXGL_PRESENT_ENGINE_OWNED, flags=0, quirk/reason=NONE.  In particular:
    * no alpha-one clear, no glFinish and no nxgl-delegated second swap. */
   SDL_GL_SwapWindow(egl_window);
-    /* [PERF] frame-time entre swaps; relatório a cada ~5s (diagnóstico do lag;
-     * custo: 1 clock_gettime/frame + 1 fprintf/5s). */
-    {
+    /* TS_PERF=1 habilita a telemetria de frame-time da bancada. */
+    if (perf_enabled < 0)
+      perf_enabled = ts_env_enabled("TS_PERF");
+    if (perf_enabled) {
       static struct timespec last = {0, 0};
       static double sum = 0, mx = 0;
       static unsigned n = 0, s20 = 0, s40 = 0;

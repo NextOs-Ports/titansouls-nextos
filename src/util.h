@@ -10,8 +10,9 @@
 
 #include <stdint.h>
 
-int debugPrintf(const char *text, ...); /* verboso, so' com COI_DEBUG=1 */
+int debugPrintf(const char *text, ...); /* verboso, so' com TS_DEBUG=1 */
 int logPrintf(const char *text, ...);   /* release: sempre no stderr do port */
+int ts_env_enabled(const char *name);
 
 int ret0(void);
 int ret1(void);

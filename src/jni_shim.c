@@ -422,7 +422,8 @@ static void *jni_CallStaticObjectMethod(void *env, void *clazz,
   if (methodID == &g_method_tags[MID_TS_CONTENT_DIR])
     return make_jstring(ts_content_dir());
   if (methodID == &g_method_tags[MID_TS_LANG]) {
-    /* REGRA #5: INGLES, sempre. */
+    /* Fallback for callers outside the hooked AgLocale path; the native menu
+     * owns manual language selection. */
     return make_jstring("en");
   }
   if (methodID == &g_method_tags[MID_TS_MODEL]) {

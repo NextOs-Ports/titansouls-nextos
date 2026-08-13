@@ -32,12 +32,14 @@
 #include <SDL2/SDL.h>
 
 #include "android_shim.h"
+#include "audio_recovery_policy.h"
 #include "asset_shim.h"
 #include "bionic_compat.h"
 #include "egl_shim.h"
 #include "framework_bridge.h"
 #include "imports.h"
 #include "jni_shim.h"
+#include "language_menu.h"
 #include "lifecycle.h"
 #include "loader_compat.h"
 #include "platform_shims.h"
@@ -196,6 +198,7 @@ static void preload_device_libs(void) {
 static void *g_fmod_system;
 static int (*g_fmod_system_create_real)(void **system);
 static int (*g_fmod_system_update)(void *system);
+static unsigned int g_fmod_opensl_retry_count;
 static pthread_t g_main_thread;
 
 int ts_FMOD_System_Create(void **system) {
@@ -203,6 +206,7 @@ int ts_FMOD_System_Create(void **system) {
   int r = g_fmod_system_create_real(system);
   if (r == 0 && system && *system) {
     g_fmod_system = *system;
+    g_fmod_opensl_retry_count = 0u;
     logPrintf("fmod: System criado (%p) — update sera' bombeado na espera\n",
               g_fmod_system);
   }
@@ -247,9 +251,113 @@ typedef int (*ts_createsound_fn)(void *system, const char *name,
                                  unsigned int mode, void *exinfo, void **sound);
 typedef int (*ts_setfs_fn)(void *system, void *open, void *close, void *read,
                            void *seek, void *aread, void *acancel, int align);
+typedef int (*ts_fmod_init_fn)(void *system, int maxchannels,
+                               unsigned int flags, void *extradriverdata);
+typedef int (*ts_fmod_getoutput_fn)(void *system, int *output);
+typedef int (*ts_fmod_setoutput_fn)(void *system, int output);
+typedef int (*ts_fmod_getnumdrivers_fn)(void *system, int *drivers);
+typedef int (*ts_fmod_getversion_fn)(void *system, unsigned int *version);
 
 static ts_createsound_fn g_create_stream_real, g_create_sound_real;
 static ts_setfs_fn g_setfs_real;
+static ts_fmod_init_fn g_fmod_init_real;
+static ts_fmod_getoutput_fn g_fmod_getoutput_real;
+static ts_fmod_setoutput_fn g_fmod_setoutput_real;
+static ts_fmod_getnumdrivers_fn g_fmod_getnumdrivers_real;
+static ts_fmod_getversion_fn g_fmod_getversion_real;
+
+static const char *ts_fmod_result_name(int result) {
+  switch (result) {
+    case 0: return "FMOD_OK";
+    case 31: return "FMOD_ERR_INITIALIZATION";
+    case 32: return "FMOD_ERR_INITIALIZED";
+    case 33: return "FMOD_ERR_INTERNAL";
+    case 48: return "FMOD_ERR_NEEDSHARDWARE";
+    case 55: return "FMOD_ERR_OUTPUT_ALLOCATED";
+    case 56: return "FMOD_ERR_OUTPUT_CREATEBUFFER";
+    case 57: return "FMOD_ERR_OUTPUT_DRIVERCALL";
+    case 58: return "FMOD_ERR_OUTPUT_ENUMERATION";
+    case 59: return "FMOD_ERR_OUTPUT_FORMAT";
+    case 60: return "FMOD_ERR_OUTPUT_INIT";
+    case 61: return "FMOD_ERR_OUTPUT_NOHARDWARE";
+    case 62: return "FMOD_ERR_OUTPUT_NOSOFTWARE";
+    case 66: return "FMOD_ERR_PLUGIN_MISSING";
+    case 79: return "FMOD_ERR_UNINITIALIZED";
+    default: return "FMOD_RESULT";
+  }
+}
+
+int ts_fmod_init(void *system, int maxchannels, unsigned int flags,
+                 void *extradriverdata) {
+  unsigned int version = 0u;
+  int output = -1;
+  int drivers = -1;
+  int version_result;
+  int output_result;
+  int drivers_result;
+  int selected_opensl = 0;
+  int audio_disabled = getenv("TS_NOAUDIO") != NULL;
+  int result;
+
+  if (!g_fmod_init_real || !g_fmod_getoutput_real ||
+      !g_fmod_setoutput_real || !g_fmod_getnumdrivers_real ||
+      !g_fmod_getversion_real)
+    return 33;
+
+  version_result = g_fmod_getversion_real(system, &version);
+  output_result = g_fmod_getoutput_real(system, &output);
+  drivers_result = g_fmod_getnumdrivers_real(system, &drivers);
+  logPrintf("[fmod] pre-init version=0x%08x(%d) output=%d(%d) "
+            "drivers=%d(%d)\n", version, version_result, output,
+            output_result, drivers, drivers_result);
+  logPrintf("[fmod] init args maxchannels=%d flags=0x%08x extra=%p\n",
+            maxchannels, flags, extradriverdata);
+
+  /* The engine already tried AUTODETECT in _selectBestDevice.  With no
+   * Android driver it changes the output to NOSOUND, which would make init
+   * succeed while violating the required audio capability.  Recover only
+   * that observed condition and only for the exact audited FMOD ABI. */
+  if (ts_audio_select_opensl_preinit(audio_disabled, version_result, version,
+                                     output_result, output)) {
+    int select_result =
+        g_fmod_setoutput_real(system, TS_FMOD_OUTPUT_OPENSL);
+    logPrintf("[fmod] default sem driver real; setOutput(OPENSL=%d) -> "
+              "%s(%d)\n", TS_FMOD_OUTPUT_OPENSL,
+              ts_fmod_result_name(select_result), select_result);
+    if (select_result != 0)
+      return select_result;
+    selected_opensl = 1;
+  }
+
+  result = g_fmod_init_real(system, maxchannels, flags, extradriverdata);
+  logPrintf("[fmod] System::init output=%d -> %s(%d)\n",
+            selected_opensl ? TS_FMOD_OUTPUT_OPENSL : output,
+            ts_fmod_result_name(result), result);
+  if (result == 0 ||
+      !ts_audio_retry_opensl(
+          audio_disabled, version_result, version, result,
+          selected_opensl ||
+              (output_result == 0 && output == TS_FMOD_OUTPUT_OPENSL),
+          g_fmod_opensl_retry_count))
+    return result;
+
+  /* One bounded recovery after a real output/driver failure.  Never guess
+   * the enum for an unknown guest and never turn a failed retry into OK. */
+  {
+    g_fmod_opensl_retry_count++;
+    int select_result =
+        g_fmod_setoutput_real(system, TS_FMOD_OUTPUT_OPENSL);
+    logPrintf("[fmod] init falhou; setOutput(OPENSL=%d) -> %s(%d)\n",
+              TS_FMOD_OUTPUT_OPENSL, ts_fmod_result_name(select_result),
+              select_result);
+    if (select_result != 0)
+      return result;
+  }
+  result = g_fmod_init_real(system, maxchannels, flags, extradriverdata);
+  logPrintf("[fmod] System::init retry OPENSL -> %s(%d)\n",
+            ts_fmod_result_name(result), result);
+  return result;
+}
 
 /* Escada de modos: o open bloqueante recusa combinacoes que o FMOD Ex desta
  * versao nao serve neste ambiente (HARDWARE nao existe fora do Android; o
@@ -322,6 +430,11 @@ int ts_fmod_setFileSystem(void *system, void *open, void *close, void *read,
 #define TS_SYM_SETFS                                                          \
   "_ZN4FMOD6System13setFileSystemEPF11FMOD_RESULTPKciPjPPvS6_EPFS1_S5_S5_EPF" \
   "S1_S5_S5_jS4_S5_EPFS1_S5_jS5_EPFS1_P18FMOD_ASYNCREADINFOS5_ESA_i"
+#define TS_SYM_INIT "_ZN4FMOD6System4initEijPv"
+#define TS_SYM_GETOUTPUT "_ZN4FMOD6System9getOutputEP15FMOD_OUTPUTTYPE"
+#define TS_SYM_SETOUTPUT "_ZN4FMOD6System9setOutputE15FMOD_OUTPUTTYPE"
+#define TS_SYM_GETNUMDRIVERS "_ZN4FMOD6System13getNumDriversEPi"
+#define TS_SYM_GETVERSION "_ZN4FMOD6System10getVersionEPj"
 
 static int bind_export(ts_loader *loader, ts_loader_module_id module_id,
                        const char *name, void *destination,
@@ -352,11 +465,25 @@ static int bind_fmod_sync(ts_loader *loader) {
       bind_export(loader, TS_LOADER_MODULE_FMOD, TS_SYM_SOUND,
                   &g_create_sound_real, sizeof(g_create_sound_real)) != 0 ||
       bind_export(loader, TS_LOADER_MODULE_FMOD, TS_SYM_SETFS,
-                  &g_setfs_real, sizeof(g_setfs_real)) != 0)
+                  &g_setfs_real, sizeof(g_setfs_real)) != 0 ||
+      bind_export(loader, TS_LOADER_MODULE_FMOD, TS_SYM_INIT,
+                  &g_fmod_init_real, sizeof(g_fmod_init_real)) != 0 ||
+      bind_export(loader, TS_LOADER_MODULE_FMOD, TS_SYM_GETOUTPUT,
+                  &g_fmod_getoutput_real,
+                  sizeof(g_fmod_getoutput_real)) != 0 ||
+      bind_export(loader, TS_LOADER_MODULE_FMOD, TS_SYM_SETOUTPUT,
+                  &g_fmod_setoutput_real,
+                  sizeof(g_fmod_setoutput_real)) != 0 ||
+      bind_export(loader, TS_LOADER_MODULE_FMOD, TS_SYM_GETNUMDRIVERS,
+                  &g_fmod_getnumdrivers_real,
+                  sizeof(g_fmod_getnumdrivers_real)) != 0 ||
+      bind_export(loader, TS_LOADER_MODULE_FMOD, TS_SYM_GETVERSION,
+                  &g_fmod_getversion_real,
+                  sizeof(g_fmod_getversion_real)) != 0)
     return -1;
-  logPrintf("fmod: sync bind stream=%p sound=%p setfs=%p\n",
+  logPrintf("fmod: sync bind stream=%p sound=%p setfs=%p init=%p\n",
             (void *)g_create_stream_real, (void *)g_create_sound_real,
-            (void *)g_setfs_real);
+            (void *)g_setfs_real, (void *)g_fmod_init_real);
   return 0;
 }
 
@@ -555,6 +682,10 @@ int main(int argc, char *argv[]) {
 
   jni_shim_set_package("com.devolver.titansouls", 31);
   asset_shim_init(gamedir);
+  if (ts_language_menu_prepare(gamedir) != 0) {
+    logPrintf("language-menu: preflight recusado\n");
+    return 1;
+  }
   /* Os literais /sdcard/... do binario (OBB, TitanSoulsSave, logs de debug)
    * passam a apontar para <gamedir>/sdcard. */
   asm2_bionic_init(ts_paths_external());
@@ -652,6 +783,11 @@ int main(int argc, char *argv[]) {
    * a configuracao normal exige a correcao FMOD comprovada. */
   if (!getenv("TS_NO_FMOD_PUMP") && install_fmod_update_pump(loader) != 0)
     goto fail;
+  if (ts_language_menu_install(loader, (uintptr_t)game_info.mapping_base,
+                               game_info.mapping_size) != 0) {
+    logPrintf("language-menu: instalacao recusada\n");
+    goto fail;
+  }
 
   loader_result = ts_loader_finalize(loader);
   if (loader_result != NXLOADER_OK) {

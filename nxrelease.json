@@ -3,7 +3,7 @@
   "source_root": ".",
   "package": {
     "id": "titansouls",
-    "version": "1.0.0-rc.1",
+    "version": "1.0.0-rc.4",
     "profile": "universal-portmaster",
     "launcher": "Titan Souls.sh",
     "launcher_chain": [
@@ -11,7 +11,7 @@
     ],
     "launcher_contract": {
       "generator": "nxbootstrap",
-      "version": "0.6.4",
+      "version": "0.6.5",
       "config_path": "titansouls/nxport.json",
       "config_sha256": "0c68e17bb84c495271c5fbf32f3f0656a7da6a635476bf0b7c859fa0986cef08"
     },
@@ -23,7 +23,7 @@
     }
   },
   "release": {
-    "source_date_epoch": 1786406400,
+    "source_date_epoch": 1786492800,
     "max_glibc": "2.30",
     "compression": "deflated"
   },
@@ -121,7 +121,7 @@
       "target": "Titan Souls.sh",
       "kind": "launcher",
       "mode": "0755",
-      "sha256": "ff1c361b12cce1b7548ec56afff52bff201bcca67c67ce18d42bec073e9fb1e8"
+      "sha256": "110be56ec8e8d35d256ba2733003d2ddd737a1af5f24406839f16fcd62f072c5"
     },
     {
       "source": "nxport.json",
@@ -145,7 +145,7 @@
       "architecture": "armv7",
       "build_profile": "universal-low-glibc",
       "provenance": "build_universal.sh; pinned offline Debian Buster ARMHF image sha256:58e229c82e8270fd69b0c307654e31793b781218884ce868844597ec4b8c9fef; NextOS SDK used for headers only",
-      "sha256": "ff934a4aaadd029a68328603037c2c155c800c6fb8965db4e966c682bc25048a",
+      "sha256": "5fbe3ec54bc709748edc02dbae230f2494de2d190fbb5e76c83e2c31b1642087",
       "needed": [
         "ld-linux-armhf.so.3",
         "libEGL.so.1",
@@ -164,14 +164,14 @@
       "target": "titansouls/README.md",
       "kind": "payload",
       "mode": "0644",
-      "sha256": "b06881b60914d45a3d36b5b3fb25552aa73c66e638dbe3885ff1a5fd3c1f43f4"
+      "sha256": "c65c2e018c90fb97db756f8071632af8ad504241ef9e6aa91f3a1c188fce0553"
     },
     {
       "source": "INSTALLATION.md",
       "target": "titansouls/INSTALLATION.md",
       "kind": "payload",
       "mode": "0644",
-      "sha256": "9d685b3fda60fc0470f1a91565c4c4317aa36e0ef043af3a63c61ad9b7f08ab3"
+      "sha256": "5c789955b8a12e5f60e0dd2e5f77d96c56ab98c65d3f395fa8cbe686949371e9"
     },
     {
       "source": "NOTICE.md",
@@ -192,14 +192,14 @@
       "target": "titansouls/BUILD-PROVENANCE.txt",
       "kind": "payload",
       "mode": "0644",
-      "sha256": "672e11f689090803e765417f99f6a6d5190037f563ae0a41a9b0a8e113653743"
+      "sha256": "df8f3696b1372aa6b66a36ca1cc0c87bc77ac6cb76d684d3541d8c5f7fd1d04f"
     },
     {
       "source": "version.txt",
       "target": "titansouls/version.txt",
       "kind": "payload",
       "mode": "0644",
-      "sha256": "8e3ccfbe492191dbb919be7b4ef3d93bd88f92b1d99532b25ba19c5ad9f1f722"
+      "sha256": "88ea7d36adb579694883db250b37e012ebf9dfcb5938032d92cc5b843a548a11"
     },
     {
       "source": "gamedata-template/README.txt",
@@ -270,7 +270,7 @@
       "target": "titansouls/adapter/adapter-contract.json",
       "kind": "payload",
       "mode": "0644",
-      "sha256": "32c37953b67e563700a4d3071094107c744164e95574da89342cc4eba0175adf"
+      "sha256": "4e8c133acfb42798930e489ef54b1d4ecbd1aa6e146f69b838e062b6037382b1"
     },
     {
       "source": "nxproject.json",

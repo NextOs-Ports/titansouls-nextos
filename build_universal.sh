@@ -132,10 +132,12 @@ compile_source() {
 }
 
 PORT_SOURCES=(
-  src/main.c src/imports.c src/util.c src/error.c
+  src/main.c src/imports.c src/audio_recovery_policy.c src/cpuinfo_compat.c
+  src/util.c src/error.c
   src/bionic_compat.c src/softfp_bridge.c src/platform_shims.c
   src/pthread_bridge.c src/android_shim.c src/asset_shim.c
-  src/egl_shim.c src/jni_shim.c src/opensles_shim.c src/setjmp_bridge.S
+  src/egl_shim.c src/jni_shim.c src/language_menu.c
+  src/language_menu_policy.c src/opensles_shim.c src/setjmp_bridge.S
   src/ts_loader.c src/loader_compat.c src/framework_bridge.c src/lifecycle.c
 )
 for source in "${PORT_SOURCES[@]}"; do

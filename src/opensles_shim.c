@@ -14,6 +14,7 @@
 #include <unistd.h>
 
 #include "framework_bridge.h"
+#include "nxaudio.h"
 #include "opensles_shim.h"
 #include "guest_import.h"
 #include "util.h"
@@ -137,6 +138,16 @@ static pthread_mutex_t g_players_lock = PTHREAD_MUTEX_INITIALIZER;
 static SDL_AudioDeviceID g_audio_dev = 0;
 static int g_audio_initialized = 0;
 
+static int sdl_audio_driver_compiled(const char *wanted) {
+  int count = SDL_GetNumAudioDrivers();
+  for (int index = 0; index < count; index++) {
+    const char *driver = SDL_GetAudioDriver(index);
+    if (driver && strcmp(driver, wanted) == 0)
+      return 1;
+  }
+  return 0;
+}
+
 static void queue_reset(AudioPlayer *p) {
   memset(p->queued_sizes, 0, sizeof(p->queued_sizes));
   p->queued_head_index = 0;
@@ -231,6 +242,7 @@ static uint32_t ring_read(AudioPlayer *p, void *data, uint32_t len) {
 #define TMP_BUF_SAMPLES (SDL_AUDIO_SAMPLES * 2)
 
 static void sdl_audio_callback(void *userdata, Uint8 *stream, int len) {
+  static int audio_perf_enabled = -1;
   (void)userdata;
   memset(stream, 0, len);
 
@@ -478,9 +490,10 @@ static void sdl_audio_callback(void *userdata, Uint8 *stream, int len) {
     prev_left = out[out_samples - 2];
     prev_right = out[out_samples - 1];
   }
-  /* [PERFAUD] relatório ~5s: callbacks, underruns acumulados, clicks, players
-   * ativos e enchimento do ring de cada um (diagnóstico do lag de áudio). */
-  {
+  /* TS_AUDIO_PERF=1 habilita a telemetria periódica da bancada. */
+  if (audio_perf_enabled < 0)
+    audio_perf_enabled = ts_env_enabled("TS_AUDIO_PERF");
+  if (audio_perf_enabled) {
     static uint32_t last_report_cb = 0;
     uint32_t cbs_5s = (uint32_t)(5.0 * SDL_OUTPUT_RATE / (out_frames ? out_frames : 1024));
     if (callback_count - last_report_cb >= cbs_5s) {
@@ -527,8 +540,67 @@ static int ensure_audio_initialized(void) {
 
   g_audio_dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, 0);
   if (g_audio_dev == 0) {
-    logPrintf("[audio] SDL_OpenAudioDevice(auto) FALHOU: %s; "
-              "CreateAudioPlayer sera recusado\n", SDL_GetError());
+    char first_error[256];
+    char first_driver[64];
+    int alsa_compiled;
+    nxaudio_backend_retry_plan retry_plan;
+    nxaudio_backend_retry_request retry_request;
+    nxaudio_result retry_result;
+    const char *current = SDL_GetCurrentAudioDriver();
+    const char *explicit_driver = getenv("SDL_AUDIODRIVER");
+    const char *explicit_driver_alias = getenv("SDL_AUDIO_DRIVER");
+    snprintf(first_error, sizeof(first_error), "%s", SDL_GetError());
+    snprintf(first_driver, sizeof(first_driver), "%s",
+             current && current[0] ? current : "unknown");
+    alsa_compiled = sdl_audio_driver_compiled("alsa");
+
+    memset(&retry_request, 0, sizeof(retry_request));
+    retry_request.api_version = NXAUDIO_API_VERSION;
+    retry_request.struct_size = sizeof(retry_request);
+    retry_request.current_backend = first_driver;
+    retry_request.fallback_backend = "alsa";
+    retry_request.failure_reason = NXAUDIO_REASON_DEVICE_OPEN_FAILED;
+    retry_request.retry_count = 0u;
+    retry_request.backend_explicit = 0;
+    retry_request.environment_explicit =
+        (explicit_driver && explicit_driver[0]) ||
+        (explicit_driver_alias && explicit_driver_alias[0]);
+    retry_request.fallback_available = alsa_compiled;
+    retry_request.fallback_compiled = alsa_compiled;
+    memset(&retry_plan, 0, sizeof(retry_plan));
+    retry_result = nxaudio_plan_backend_retry(&retry_request, &retry_plan);
+
+    /* Preserve the inherited/default backend first.  A single ALSA recovery
+     * is permitted only after a real open failure, only when the user/CFW did
+     * not pin SDL_AUDIODRIVER, and only when this SDL actually compiled ALSA.
+     * nxaudio validates the generic capability policy; this adapter still
+     * owns SDL shutdown, backend selection and the single device retry. */
+    if (retry_result == NXAUDIO_OK && retry_plan.retry_allowed) {
+      logPrintf("[audio] SDL auto driver=%s FALHOU: %s; "
+                "nxaudio=%s, tentando %s uma vez\n", first_driver,
+                first_error, nxaudio_reason_name(retry_plan.reason),
+                retry_plan.backend);
+      SDL_AudioQuit();
+      if (SDL_AudioInit(retry_plan.backend) == 0)
+        g_audio_dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, 0);
+      if (g_audio_dev == 0)
+        logPrintf("[audio] retry %s FALHOU: %s\n", retry_plan.backend,
+                  SDL_GetError());
+    } else {
+      logPrintf("[audio] SDL_OpenAudioDevice(auto driver=%s) FALHOU: %s; "
+                "retry ALSA nao permitido (nxaudio=%s explicit=%s alias=%s "
+                "compiled=%d)\n",
+                first_driver, first_error,
+                nxaudio_reason_name(retry_plan.reason),
+                explicit_driver && explicit_driver[0] ? explicit_driver : "no",
+                explicit_driver_alias && explicit_driver_alias[0]
+                    ? explicit_driver_alias : "no",
+                alsa_compiled);
+    }
+  }
+  if (g_audio_dev == 0) {
+    logPrintf("[audio] nenhum device real abriu; CreateAudioPlayer sera "
+              "recusado\n");
     g_audio_initialized = 1;
     return -1;
   }
@@ -538,7 +610,7 @@ static int ensure_audio_initialized(void) {
             SDL_GetCurrentAudioDriver() ? SDL_GetCurrentAudioDriver() : "?",
             have.freq, have.channels, have.samples);
   /* O device real aberto pelo SDL e' a unica fonte de classificacao. O bridge
-   * publica o receipt forte do contrato titansouls-fmodex-opensl-sdl-v1; nao
+   * publica o receipt forte do contrato titansouls-fmodex-opensl-sdl-v2; nao
    * escolhemos backend por lista local e nao alteramos o mixer OpenSL/FMOD. */
   if (ts_framework_publish_audio(g_audio_dev, &have) != 0) {
     logPrintf("[audio] receipt nxaudio recusado; fechando device SDL\n");

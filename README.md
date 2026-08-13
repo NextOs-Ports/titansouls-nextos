@@ -24,14 +24,17 @@ The physical evidence is deliberately split by hardware and artifact:
 
 | Target | Evidence | Status |
 |---|---|---|
-| ArkOS, Mali-G31, 640×480 | Predecessor `5b46a16d…` reached gameplay with video, audio, input and persistent save. Final `ff934a4a…` had its SHA-256 verified on-device and reached the title through the NXExtract marker fast path, pinned modules, pad 1, nxgl, Pulse/ALSA audio, `FRAMEWORK READY` and native CREATE/START. | Exact final binary quick boot proven; full gameplay acceptance remains tied to the predecessor candidate |
-| NextOS, Mali-450 / Utgard, 1280×720 | Predecessor `5b46a16d…` completed a clean NXExtract install and reached gameplay at about 60 fps with audio, input and save. Final `ff934a4a…` had its SHA-256 verified on-device and passed the same quick-boot path to the title. | Exact final binary quick boot proven; predecessor gameplay proven; the one-pixel tile grid remains an accepted known limitation |
+| ArkOS, Mali-G31, 640×480 | Predecessor `5b46a16d…` reached gameplay with video, audio, input and persistent save. The last physically tested rebuild, `ff934a4a…`, had its SHA-256 verified on-device and reached the title through the NXExtract marker fast path, pinned modules, pad 1, nxgl, Pulse/ALSA audio, `FRAMEWORK READY` and native CREATE/START. | Tested rebuild quick boot proven; full gameplay acceptance remains tied to the predecessor candidate |
+| NextOS, Mali-450 / Utgard, 1280×720 | Predecessor `5b46a16d…` completed a clean NXExtract install and reached gameplay at about 60 fps with audio, input and save. The RC3 development candidate `81b8a242…` had its SHA-256 verified on-device, expanded the native menu to seven choices, applied Portuguese, initialized FMOD/SDL, reached `FRAMEWORK READY`, and opened both world and boss music streams successfully. | RC3 native-language and normal audio paths physically accepted; the one-pixel tile grid remains an accepted known limitation |
+| ROCKNIX Nightly, Miyoo Flip / RK3566 | The pre-RC4 package reached gameplay but FMOD Ex 4.44.17 reported zero drivers and `FMOD_ERR_NEEDSHARDWARE` before resolving any OpenSL symbol. RC4 test.1 added only proven ARMv7 aliases to FMOD's `/proc/cpuinfo` read; the tester then reported working game audio. Its executable is byte-identical to the final RC4 executable (`5fbe3ec5…`). | ROCKNIX audio correction physically confirmed by tester report; final RC4 ZIP/SHA still needs complete installation/gameplay acceptance |
 | Any other device family | None | Unsupported until the exact same ZIP and SHA-256 pass there |
 
-Version 1.0.0-rc.1 is therefore a private-test release candidate, not evidence
-of universal device support. The exact packaged ZIP/SHA-256 still needs a
-physical install and full gameplay retest; passing host gates does not replace
-that proof.
+Version 1.0.0-rc.4 is therefore a private-test release candidate, not evidence
+of universal device support. The ROCKNIX audio correction was physically
+confirmed through the test package and its executable is byte-identical to the
+one in RC4. The exact final ZIP/SHA-256 still needs complete physical
+installation and gameplay validation. Passing host gates does not replace that
+proof.
 
 ### Architecture
 
@@ -52,9 +55,18 @@ that proof.
   creates child contexts and keeps the engine's single swap/present path.
 - `nxinput` owns the one SDL event pump and translates the firmware controller
   mapping to the Android input queue.
-- `nxaudio` validates the FMOD Ex → OpenSL ES → SDL output contract; the guest's
-  queued PCM remains under the narrow per-game shim.
-- `nxgenerator` 0.2.0 and `nxbootstrap` 0.6.4 produce one foreground PortMaster
+- `nxaudio` validates the FMOD Ex → OpenSL ES → SDL output contract and provides
+  a fail-closed backend-retry policy. The adapter preserves an explicit audio
+  selection, pins recovery to FMOD Ex 4.44.17, and permits at most one OpenSL or
+  compiled-ALSA recovery after a matching real failure. The guest's queued PCM
+  remains under the narrow per-game shim.
+- FMOD Ex 4.44.17 predates AArch64 `/proc/cpuinfo` feature names. On an AArch64
+  kernel it rejected the 32-bit guest with `FMOD_ERR_NEEDSHARDWARE` before
+  OpenSL/SDL was entered. The Titan Souls adapter now preserves the native file
+  and adds `vfp`/`vfpv3`/`vfpv3d16` and `neon` aliases only when architecture 8+
+  and the equivalent `fp`/`asimd` capabilities are actually present. This is a
+  version-specific guest compatibility rule, not a global framework default.
+- `nxgenerator` 0.2.0 and `nxbootstrap` 0.6.5 produce one foreground PortMaster
   launcher. A second public `run.sh` is forbidden.
 - NXExtract 1.2.6 installs owner-provided data transactionally. `nxabi` and
   `nxrelease` audit every packaged ELF and reopen the deterministic ZIP.
@@ -102,6 +114,18 @@ The launcher exports the firmware's controller mapping only when it is nonempty.
 It does not capture the D-pad for a cursor and does not force SDL video or audio
 drivers.
 
+### Language
+
+The Android release originally exposes only System Language and Titan in its
+native toggle, although the shipped text contains complete English, French,
+German, Portuguese and Spanish columns. The adapter completes that same native
+Options menu as System Language, English, Français, Deutsch, Português, Español
+and Titan. A selection goes through the game's `Language::ChangeLanguage` and
+`ConfigSave::Save`, so it persists without a launcher setting or an external
+rewrite of `config.txt`. A clean installation keeps the upstream English
+default. Italian text exists in the data but is not exposed because this Android
+engine does not recognize an Italian language key safely.
+
 ### Owner data and installation
 
 Use a lawfully obtained Android v1.0.3 copy. NXExtract identifies inputs by
@@ -134,6 +158,10 @@ must set all three roots shown above. The package recipe materializes the
 generated launcher and redistributable runtimes outside the tracked source
 allowlist.
 
+Periodic bench telemetry is opt-in: `TS_HEARTBEAT=1`, `TS_PERF=1` and
+`TS_AUDIO_PERF=1` enable the looper, frame-time and audio reports respectively.
+They are all disabled by default in normal gameplay.
+
 The public executable is named `titansouls-nextos`. Its release profile is
 ARMHF with a declared minimum glibc of 2.28 and a hard ceiling of 2.30. The
 final gate checks every Linux ELF, not only the game loader. Android owner
@@ -146,7 +174,15 @@ libraries are validated by NXExtract and are never packaged.
   receipts/readiness.
 - `src/egl_shim.c`: guest EGL façade over nxgl.
 - `src/android_shim.c`: Android looper/input façade over nxinput.
-- `src/opensles_shim.c`: FMOD/OpenSL queue bridge validated by nxaudio.
+- `src/opensles_shim.c`, `src/audio_recovery_policy.*`: FMOD/OpenSL queue bridge
+  and the exact-version, bounded output recovery validated by nxaudio.
+- `src/cpuinfo_compat.*`: bounded translation of proven AArch64 feature names
+  for the legacy FMOD ARMv7 probe; `tests/test_cpuinfo_compat.c` covers its
+  positive, native-ARMv7, capacity and fail-closed cases.
+- `src/language_menu.c`, `src/language_menu_policy.*`: version-gated completion
+  of the native language menu and mapping to the guest locale enum.
+- `tests/test_language_menu_policy.c`, `tests/test_audio_recovery_policy.c`:
+  focused host coverage for the seven-choice mapping and bounded recovery.
 - `src/imports.c`, `src/tilemap_uv_fix.h`: guest import façade, hueshift UV
   precision promotion and tilemap UV correction.
 - `extractor.json`: port-specific BYO-data recipe. The canonical NXExtract 1.2.6
@@ -177,13 +213,16 @@ A evidência física está separada por hardware e por artefato:
 
 | Alvo | Evidência | Estado |
 |---|---|---|
-| ArkOS, Mali-G31, 640×480 | O predecessor `5b46a16d…` chegou ao gameplay com vídeo, áudio, controle e save persistente. O `ff934a4a…` final teve SHA-256 conferido no aparelho e chegou ao título pelo fast path do marcador NXExtract, módulos pinados, pad 1, nxgl, áudio Pulse/ALSA, `FRAMEWORK READY` e CREATE/START nativos. | Boot rápido do binário final exato provado; a aceitação de gameplay completo ainda pertence ao candidato predecessor |
-| NextOS, Mali-450 / Utgard, 1280×720 | O predecessor `5b46a16d…` fez instalação limpa pelo NXExtract e chegou ao gameplay a cerca de 60 fps com áudio, controle e save. O `ff934a4a…` final teve SHA-256 conferido no aparelho e passou pelo mesmo boot rápido até o título. | Boot rápido do binário final exato provado; gameplay provado no predecessor; a grade de um pixel permanece como limitação conhecida aceita |
+| ArkOS, Mali-G31, 640×480 | O predecessor `5b46a16d…` chegou ao gameplay com vídeo, áudio, controle e save persistente. O último rebuild testado fisicamente, `ff934a4a…`, teve SHA-256 conferido no aparelho e chegou ao título pelo fast path do marcador NXExtract, módulos pinados, pad 1, nxgl, áudio Pulse/ALSA, `FRAMEWORK READY` e CREATE/START nativos. | Boot rápido do rebuild testado provado; a aceitação de gameplay completo ainda pertence ao candidato predecessor |
+| NextOS, Mali-450 / Utgard, 1280×720 | O predecessor `5b46a16d…` fez instalação limpa pelo NXExtract e chegou ao gameplay a cerca de 60 fps com áudio, controle e save. O candidato de desenvolvimento RC3 `81b8a242…` teve SHA-256 conferido no aparelho, expandiu o menu nativo para sete escolhas, aplicou português, inicializou FMOD/SDL, atingiu `FRAMEWORK READY` e abriu corretamente os streams de música do mundo e do chefe. | Idioma nativo e caminho normal de áudio do RC3 aceitos fisicamente; a grade de um pixel permanece como limitação conhecida aceita |
+| ROCKNIX Nightly, Miyoo Flip / RK3566 | O pacote anterior ao RC4 chegou ao gameplay, mas o FMOD Ex 4.44.17 informou zero drivers e `FMOD_ERR_NEEDSHARDWARE` antes de resolver qualquer símbolo OpenSL. O RC4 test.1 adicionou apenas aliases ARMv7 comprovados à leitura de `/proc/cpuinfo` feita pelo FMOD; o testador então confirmou que o áudio do jogo funcionou. O executável é byte-idêntico ao executável final do RC4 (`5fbe3ec5…`). | Correção de áudio no ROCKNIX confirmada fisicamente pelo relato do testador; o ZIP/SHA final do RC4 ainda precisa de aceitação completa de instalação/gameplay |
 | Qualquer outra família | Nenhuma | Sem suporte até o mesmo ZIP e SHA-256 passar nela |
 
-Logo, a versão 1.0.0-rc.1 é candidata de teste privado, não prova de suporte
-universal. O ZIP/SHA-256 empacotado exato ainda requer instalação física e novo
-teste completo de gameplay; gate de host não substitui essa prova.
+Logo, a versão 1.0.0-rc.4 é candidata de teste privado, não prova de suporte
+universal. A correção de áudio no ROCKNIX foi confirmada fisicamente com o
+pacote de teste, cujo executável é byte-idêntico ao usado no RC4. O ZIP/SHA-256
+final exato ainda requer instalação e validação física completa de gameplay.
+Gate de host não substitui essa prova.
 
 ### Arquitetura
 
@@ -204,9 +243,19 @@ teste completo de gameplay; gate de host não substitui essa prova.
   do guest cria contextos filhos e preserva o único swap/present da engine.
 - `nxinput` é dono do único pump de eventos SDL e traduz o mapping do firmware
   para a fila de entrada Android.
-- `nxaudio` valida o contrato FMOD Ex → OpenSL ES → SDL; o PCM enfileirado pelo
+- `nxaudio` valida o contrato FMOD Ex → OpenSL ES → SDL e fornece uma política
+  fail-closed de retry de backend. O adapter preserva seleção explícita, fixa a
+  recuperação no FMOD Ex 4.44.17 e admite no máximo uma recuperação OpenSL ou
+  ALSA compilada depois de uma falha real compatível. O PCM enfileirado pelo
   guest permanece no shim estreito deste jogo.
-- `nxgenerator` 0.2.0 e `nxbootstrap` 0.6.4 geram um único launcher PortMaster em
+- O FMOD Ex 4.44.17 é anterior aos nomes de features de `/proc/cpuinfo` do
+  AArch64. Nesse kernel ele recusava o guest de 32 bits com
+  `FMOD_ERR_NEEDSHARDWARE` antes de entrar em OpenSL/SDL. O adapter de Titan
+  Souls agora conserva o arquivo nativo e acrescenta os aliases
+  `vfp`/`vfpv3`/`vfpv3d16` e `neon` somente quando arquitetura 8+ e as features
+  equivalentes `fp`/`asimd` realmente existem. É uma compatibilidade específica
+  deste guest/versão, não um default global do framework.
+- `nxgenerator` 0.2.0 e `nxbootstrap` 0.6.5 geram um único launcher PortMaster em
   foreground. Um segundo `run.sh` público é proibido.
 - NXExtract 1.2.6 instala os dados do dono de forma transacional. `nxabi` e
   `nxrelease` auditam cada ELF empacotado e reabrem o ZIP determinístico.
@@ -248,6 +297,18 @@ era limpo e não classifica o defeito Utgard.
 
 O launcher só exporta o mapping do firmware quando ele não está vazio. Não rouba
 o D-pad para cursor e não força driver SDL de vídeo ou áudio.
+
+### Idioma
+
+A versão Android expõe originalmente apenas Idioma do Sistema e Titan em seu
+seletor nativo, embora os dados tragam colunas completas em inglês, francês,
+alemão, português e espanhol. O adapter completa esse mesmo menu Opções com
+Idioma do Sistema, English, Français, Deutsch, Português, Español e Titan. A
+escolha passa por `Language::ChangeLanguage` e `ConfigSave::Save` do próprio
+jogo, persistindo sem opção no launcher nem reescrita externa do `config.txt`.
+Uma instalação limpa conserva o padrão upstream em inglês. Os textos italianos
+existem nos dados, mas não são oferecidos porque esta engine Android não
+reconhece com segurança uma chave de idioma italiano.
 
 ### Dados do dono e instalação
 
