@@ -174,6 +174,7 @@ for source in \
 done
 
 for source in \
+  "$FRAMEWORK_ROOT"/nxgl/src/nxgl_arbiter.c \
   "$FRAMEWORK_ROOT"/nxgl/src/nxgl_diagnostics.c \
   "$FRAMEWORK_ROOT"/nxgl/src/nxgl_logic.c \
   "$FRAMEWORK_ROOT"/nxgl/src/nxgl_metrics.c \

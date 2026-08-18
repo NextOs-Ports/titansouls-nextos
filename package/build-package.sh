@@ -43,16 +43,16 @@ NXEXTRACT_LICENSE_SOURCE="$NXEXTRACT_ROOT/LICENSE"
 PACKAGE_RUNTIME="$PORT_DIR/.build/package-runtime"
 LAUNCHER_PATH="$PORT_DIR/Titan Souls.sh"
 MATERIALIZED_LAUNCHER=0
-NXRELEASE_VERSION=0.2.18
-NXRELEASE_SHA256=ddeddb5a19eb94babe94baa54b4a30f99d252fdcd507752f411a6a67caf70eed
+NXRELEASE_VERSION=0.2.20
+NXRELEASE_SHA256=fa5d81c3549e3ebae161bfa3caf548193bbe3ffa8bdda8474b01da6fc63c65aa
 NXGENERATOR_VERSION=0.2.10
 NXGENERATOR_SHA256=8dabfa8b0e33d3c295b8813ca92c3098fce10248570e0e6e5c6f66077a3aadf3
-NXBOOTSTRAP_VERSION=0.6.18
-NXEXTRACT_VERSION=1.2.10
+NXBOOTSTRAP_VERSION=0.6.21
+NXEXTRACT_VERSION=1.2.11
 NXEXTRACT_UI_SHA256=02ce707129b80ca1666f72c9e74792525dd2c7d2ada93bac5a93b9bfb41e3ff6
 MANIFEST="$PORT_DIR/nxrelease.json"
-DESTINATION=${1:-"$PORT_DIR/.build/release-1.0.1"}
-ARCHIVE_NAME=titansouls-1.0.1.zip
+DESTINATION=${1:-"$PORT_DIR/.build/release-1.0.2"}
+ARCHIVE_NAME=titansouls-1.0.2.zip
 
 fail() {
   printf 'titansouls package error: %s\n' "$*" >&2
@@ -91,19 +91,19 @@ require_pinned_file \
   "NXGenerator README template"
 require_pinned_file \
   "$NXBOOTSTRAP_ROOT/VERSION" \
-  8d518e15ea773d6de0f1016e5fe976695d58abeb27001f3273a7389451155b0f \
+  7ac988c6ff0bec13c3aba379ef36569252b951715aeb1c20b47f9adedfa71442 \
   "NXBootstrap VERSION"
 require_pinned_file \
   "$NXBOOTSTRAP_ROOT/tools/generate-port.py" \
-  8c75e4f2fd3d586768a36a6b042d9937d1a4a6ffd8657cf51d1d43e0605431fd \
+  bdc12875ffae256fead9e0ecd079ecff0d2c138ada959d6bb16f03ea05ffe5e6 \
   "NXBootstrap generator"
 require_pinned_file \
   "$NXBOOTSTRAP_ROOT/templates/launcher.sh.in" \
-  aa7341a7ae98af52128ad5268f5e49924d9bca68c00c9c1ac5a2de8fd5f58528 \
+  ef6caadf8354af7019b4fd3491dd7d5bb1cfa7e10312162798d80ee93549b259 \
   "NXBootstrap launcher template"
 require_pinned_file \
   "$NXCOMPAT_ROOT/capabilities-v1.json" \
-  0f302c49572c34e57448342cf0ecf605c96c9af2b02d5a2adccfa5dc93d75b4c \
+  2e68e1f0aa4567387277cb933b577d2ea9ffabd3a4bf1c9e00721374cd003ec7 \
   "NXCompat capability registry"
 require_pinned_file \
   "$NXCOMPAT_ROOT/quirk-registry-v1.json" \
@@ -111,11 +111,11 @@ require_pinned_file \
   "NXCompat quirk registry"
 require_pinned_file \
   "$NXEXTRACT_ROOT/VERSION" \
-  4304275f30e076c76abdc0f280f0fdd5537f1ac700953ba1908e29a64d531919 \
+  37310c7f348165122ccb9f4a854c29485395bb3af0659ba5a77be066c1511679 \
   "NXExtract VERSION"
 require_pinned_file \
   "$NXEXTRACT_ROOT/nxextract.py" \
-  b1b46ecdf1336b1412d7d3a3d291220aca4834a47730a5545afb382dae6036b5 \
+  5bc3a0f354b7bccc3fc22d788770d1fa3c0b03d2a4770bda384773b3f9f0753d \
   "NXExtract runtime"
 require_pinned_file \
   "$NXEXTRACT_ROOT/run-extractor.sh" \

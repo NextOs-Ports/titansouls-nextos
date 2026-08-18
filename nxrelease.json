@@ -3,7 +3,7 @@
   "source_root": ".",
   "package": {
     "id": "titansouls",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "profile": "universal-portmaster",
     "launcher": "Titan Souls.sh",
     "launcher_chain": [
@@ -11,9 +11,9 @@
     ],
     "launcher_contract": {
       "generator": "nxbootstrap",
-      "version": "0.6.18",
+      "version": "0.6.21",
       "config_path": "titansouls/nxport.json",
-      "config_sha256": "bd322493120d445d1e41d5af9937289fcabc7f6c29b7d185509dd5fd176d9e61"
+      "config_sha256": "96c286455d70182568a31030d9a048a6d162cf226708fd172bf7daa1899f2528"
     },
     "port_dir": "titansouls",
     "license": {
@@ -29,9 +29,9 @@
   },
   "nxextract": {
     "path": "titansouls/nxextract/nxextract.py",
-    "version": "1.2.10",
+    "version": "1.2.11",
     "minimum_version": "1.2.10",
-    "sha256": "b1b46ecdf1336b1412d7d3a3d291220aca4834a47730a5545afb382dae6036b5",
+    "sha256": "5bc3a0f354b7bccc3fc22d788770d1fa3c0b03d2a4770bda384773b3f9f0753d",
     "runner_path": "titansouls/nxextract/run-extractor.sh",
     "runner_sha256": "c931427c7226d22d7e30eee8549b50f0621dca1c9d0336634aca08631f454d7a",
     "runtime_env_path": "titansouls/nxextract/nxextract-runtime-env.sh",
@@ -111,14 +111,14 @@
       "target": "Titan Souls.sh",
       "kind": "launcher",
       "mode": "0755",
-      "sha256": "ad51eecbcbce70063a3d7e66475d731acbb575d0c7a9594aae6fb6ed4e20c4d4"
+      "sha256": "38e9a5fe304edffa3ca767287d08d924a4f91a5138e8ba53753d4459b934a766"
     },
     {
       "source": "nxport.json",
       "target": "titansouls/nxport.json",
       "kind": "nxbootstrap-config",
       "mode": "0644",
-      "sha256": "bd322493120d445d1e41d5af9937289fcabc7f6c29b7d185509dd5fd176d9e61"
+      "sha256": "96c286455d70182568a31030d9a048a6d162cf226708fd172bf7daa1899f2528"
     },
     {
       "source": "port-env.sh",
@@ -135,7 +135,7 @@
       "architecture": "armv7",
       "build_profile": "universal-low-glibc",
       "provenance": "build_universal.sh; pinned offline Debian Buster ARMHF image sha256:58e229c82e8270fd69b0c307654e31793b781218884ce868844597ec4b8c9fef; NextOS SDK used for headers only",
-      "sha256": "5fbe3ec54bc709748edc02dbae230f2494de2d190fbb5e76c83e2c31b1642087",
+      "sha256": "e3ffb3166202cbbfcd13ea2476e1b1b5e1616bedd454535cf0c8b535f7286ab6",
       "needed": [
         "ld-linux-armhf.so.3",
         "libEGL.so.1",
@@ -189,7 +189,7 @@
       "target": "titansouls/version.txt",
       "kind": "payload",
       "mode": "0644",
-      "sha256": "44e161e4495cac2cf7858043e9e6418e9579f0ddcfae826f9a372622968ce066"
+      "sha256": "9fd28642d3aca191e5c7fc2383cfd6fabb2aac8743f029dabb8989ac584e31bc"
     },
     {
       "source": "gamedata-template/README.txt",
@@ -210,7 +210,7 @@
       "target": "titansouls/nxextract/nxextract.py",
       "kind": "nxextract",
       "mode": "0644",
-      "sha256": "b1b46ecdf1336b1412d7d3a3d291220aca4834a47730a5545afb382dae6036b5"
+      "sha256": "5bc3a0f354b7bccc3fc22d788770d1fa3c0b03d2a4770bda384773b3f9f0753d"
     },
     {
       "source": ".build/package-runtime/nxextract/run-extractor.sh",
@@ -267,7 +267,7 @@
       "target": "titansouls/nxproject.json",
       "kind": "payload",
       "mode": "0644",
-      "sha256": "fcda2e195edadbb379e4b19442eaa98b7ea9fc53ab3e732b981684347b17a666"
+      "sha256": "317fe35d07f1a0f924cd141ed23ce1aaef0c5be4b7287e2d2b6f4a934e61c3bc"
     },
     {
       "source": "nxsplash-nextos",
