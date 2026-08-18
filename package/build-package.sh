@@ -38,21 +38,21 @@ NXGENERATOR="$FRAMEWORK_ROOT/nxgenerator/nxgenerator.py"
 NXABI="$FRAMEWORK_ROOT/nxabi/nxabi.py"
 NXBOOTSTRAP_ROOT="$FRAMEWORK_ROOT/nxbootstrap"
 NXCOMPAT_ROOT="$FRAMEWORK_ROOT/nxcompat"
-NXEXTRACT_UI_SOURCE="$NXEXTRACT_ROOT/ui/build/nxextract-ui"
+NXEXTRACT_UI_SOURCE="$NXEXTRACT_ROOT/ui/release/armv7/nxextract-ui"
 NXEXTRACT_LICENSE_SOURCE="$NXEXTRACT_ROOT/LICENSE"
 PACKAGE_RUNTIME="$PORT_DIR/.build/package-runtime"
 LAUNCHER_PATH="$PORT_DIR/Titan Souls.sh"
 MATERIALIZED_LAUNCHER=0
-NXRELEASE_VERSION=0.2.5
-NXRELEASE_SHA256=097ef954261d7e31fb4a759caf2ebda9be02f069b1968e3f7b379d92f51e732f
-NXGENERATOR_VERSION=0.2.0
-NXGENERATOR_SHA256=4bcf6de0cce5e854bf66bbcb877cb111ec3184f7193137968fdeb5f33caa1c7e
-NXBOOTSTRAP_VERSION=0.6.5
-NXEXTRACT_VERSION=1.2.6
-NXEXTRACT_UI_SHA256=046afb583f5a211c946495e639409f81d9cfec706788eeccb7924b0e8e5a50b6
+NXRELEASE_VERSION=0.2.18
+NXRELEASE_SHA256=ddeddb5a19eb94babe94baa54b4a30f99d252fdcd507752f411a6a67caf70eed
+NXGENERATOR_VERSION=0.2.10
+NXGENERATOR_SHA256=8dabfa8b0e33d3c295b8813ca92c3098fce10248570e0e6e5c6f66077a3aadf3
+NXBOOTSTRAP_VERSION=0.6.18
+NXEXTRACT_VERSION=1.2.10
+NXEXTRACT_UI_SHA256=02ce707129b80ca1666f72c9e74792525dd2c7d2ada93bac5a93b9bfb41e3ff6
 MANIFEST="$PORT_DIR/nxrelease.json"
-DESTINATION=${1:-"$PORT_DIR/.build/release-1.0.0-rc.4"}
-ARCHIVE_NAME=titansouls-1.0.0-rc.4.zip
+DESTINATION=${1:-"$PORT_DIR/.build/release-1.0.1"}
+ARCHIVE_NAME=titansouls-1.0.1.zip
 
 fail() {
   printf 'titansouls package error: %s\n' "$*" >&2
@@ -83,23 +83,23 @@ require_pinned_file() {
   fail "NXExtract version drifted"
 require_pinned_file \
   "$FRAMEWORK_ROOT/nxgenerator/VERSION" \
-  1f930dd1f133c1f97a94fe3acb8db34372cf4c01ffdb2b3ff4ca72f9494121e9 \
+  011cfdb24c667a75861adfffaabe68e66358d982f437b47270ef09d86c6c6cd7 \
   "NXGenerator VERSION"
 require_pinned_file \
   "$FRAMEWORK_ROOT/nxgenerator/templates/README.md.in" \
-  98fc7eff000bef589b69e5b6f57dd437b95dc7f8f15c7280c622ca1533479a83 \
+  b3ae732a8782bd6765bf195a4748b4c0fd4e8a96a7b578ad6e1ed7061b22c7a0 \
   "NXGenerator README template"
 require_pinned_file \
   "$NXBOOTSTRAP_ROOT/VERSION" \
-  34bf52562bae401de106933a7565c9d3a5c8dc83c04b0b29492dd3f6f3983b7a \
+  8d518e15ea773d6de0f1016e5fe976695d58abeb27001f3273a7389451155b0f \
   "NXBootstrap VERSION"
 require_pinned_file \
   "$NXBOOTSTRAP_ROOT/tools/generate-port.py" \
-  571cbc2e8dfcc60ae49a5ba2aa85db4e94a1938fbb683da4196117bb3d329850 \
+  8c75e4f2fd3d586768a36a6b042d9937d1a4a6ffd8657cf51d1d43e0605431fd \
   "NXBootstrap generator"
 require_pinned_file \
   "$NXBOOTSTRAP_ROOT/templates/launcher.sh.in" \
-  003d59c43abfd3f85eaf890f9ad718be0956e24b84d610676961a5faad485cbc \
+  aa7341a7ae98af52128ad5268f5e49924d9bca68c00c9c1ac5a2de8fd5f58528 \
   "NXBootstrap launcher template"
 require_pinned_file \
   "$NXCOMPAT_ROOT/capabilities-v1.json" \
@@ -107,19 +107,19 @@ require_pinned_file \
   "NXCompat capability registry"
 require_pinned_file \
   "$NXCOMPAT_ROOT/quirk-registry-v1.json" \
-  f5d597e884c6c70b6234dceef8bdad690f20ae07c7548ebdd45660d2b16de1b1 \
+  7744aef2de9bcbf189822187576a858c2430557edba0dcd4aeb1b9295a50d4f5 \
   "NXCompat quirk registry"
 require_pinned_file \
   "$NXEXTRACT_ROOT/VERSION" \
-  5844ffcc346f89c07b13ba7596bfb3788ed73f4755e541182d7822d43b7c7a24 \
+  4304275f30e076c76abdc0f280f0fdd5537f1ac700953ba1908e29a64d531919 \
   "NXExtract VERSION"
 require_pinned_file \
   "$NXEXTRACT_ROOT/nxextract.py" \
-  a4a8e5d3bf2a1344491e27921c54430ee9b4e3fedd0160631da96734fa3d5170 \
+  b1b46ecdf1336b1412d7d3a3d291220aca4834a47730a5545afb382dae6036b5 \
   "NXExtract runtime"
 require_pinned_file \
   "$NXEXTRACT_ROOT/run-extractor.sh" \
-  179b72f02b9dfdf3ed1bdc382d074fb4ef07f83e3d62cfccfc74a950e68679c2 \
+  c931427c7226d22d7e30eee8549b50f0621dca1c9d0336634aca08631f454d7a \
   "NXExtract runner"
 require_pinned_file \
   "$NXEXTRACT_ROOT/nxextract-runtime-env.sh" \
@@ -164,7 +164,17 @@ mkdir -p -- \
   "$GENERATOR_FRAMEWORK/nxbootstrap/tools" \
   "$GENERATOR_FRAMEWORK/nxbootstrap/templates" \
   "$GENERATOR_FRAMEWORK/nxcompat" \
-  "$GENERATOR_NXEXTRACT" \
+  "$GENERATOR_FRAMEWORK/portmaster/schema" \
+  "$GENERATOR_FRAMEWORK/portmaster/vendor" \
+  "$GENERATOR_FRAMEWORK/nxsplash/src" \
+  "$GENERATOR_FRAMEWORK/nxsplash/release/aarch64" \
+  "$GENERATOR_FRAMEWORK/nxsplash/release/armv7" \
+  "$GENERATOR_FRAMEWORK/nxsplash/release/i386" \
+  "$GENERATOR_FRAMEWORK/nxsplash/release/x86_64" \
+  "$GENERATOR_NXEXTRACT/ui/release/aarch64" \
+  "$GENERATOR_NXEXTRACT/ui/release/armv7" \
+  "$GENERATOR_NXEXTRACT/ui/release/i386" \
+  "$GENERATOR_NXEXTRACT/ui/release/x86_64" \
   "$GENERATOR_REPOSITORY/ports/titansouls"
 install -m 0644 -- "$NXGENERATOR" \
   "$GENERATOR_FRAMEWORK/nxgenerator/nxgenerator.py"
@@ -172,6 +182,8 @@ install -m 0644 -- "$FRAMEWORK_ROOT/nxgenerator/VERSION" \
   "$GENERATOR_FRAMEWORK/nxgenerator/VERSION"
 install -m 0644 -- "$FRAMEWORK_ROOT/nxgenerator/templates/README.md.in" \
   "$GENERATOR_FRAMEWORK/nxgenerator/templates/README.md.in"
+install -m 0644 -- "$FRAMEWORK_ROOT/nxgenerator/templates/INSTALLATION.md.in" \
+  "$GENERATOR_FRAMEWORK/nxgenerator/templates/INSTALLATION.md.in"
 install -m 0644 -- "$NXBOOTSTRAP_ROOT/VERSION" \
   "$GENERATOR_FRAMEWORK/nxbootstrap/VERSION"
 install -m 0644 -- "$NXBOOTSTRAP_ROOT/tools/generate-port.py" \
@@ -182,6 +194,40 @@ install -m 0644 -- "$NXCOMPAT_ROOT/capabilities-v1.json" \
   "$GENERATOR_FRAMEWORK/nxcompat/capabilities-v1.json"
 install -m 0644 -- "$NXCOMPAT_ROOT/quirk-registry-v1.json" \
   "$GENERATOR_FRAMEWORK/nxcompat/quirk-registry-v1.json"
+# nxgenerator 0.2.10 validates the PortMaster contract v2, its metadata schema
+# and the vendor provenance, so the sandbox needs all three.
+install -m 0644 -- "$FRAMEWORK_ROOT/portmaster/contract-v2.json" \
+  "$GENERATOR_FRAMEWORK/portmaster/contract-v2.json"
+install -m 0644 -- \
+  "$FRAMEWORK_ROOT/portmaster/schema/port-json-supported-v1.schema.json" \
+  "$GENERATOR_FRAMEWORK/portmaster/schema/port-json-supported-v1.schema.json"
+install -m 0644 -- \
+  "$FRAMEWORK_ROOT/portmaster/vendor/PortMaster-GUI-8f9ddc4.json" \
+  "$GENERATOR_FRAMEWORK/portmaster/vendor/PortMaster-GUI-8f9ddc4.json"
+# nxsplash source is hashed by the generator's release-manifest verifier.
+install -m 0644 -- "$FRAMEWORK_ROOT/nxsplash/src/nxsplash.c" \
+  "$GENERATOR_FRAMEWORK/nxsplash/src/nxsplash.c"
+# NXExtract UI: release manifest, C source and the per-arch artifacts.
+install -m 0644 -- "$NXEXTRACT_ROOT/ui/release/manifest-v1.json" \
+  "$GENERATOR_NXEXTRACT/ui/release/manifest-v1.json"
+install -m 0644 -- "$NXEXTRACT_ROOT/ui/nxextract_ui.c" \
+  "$GENERATOR_NXEXTRACT/ui/nxextract_ui.c"
+for nxui_arch in aarch64 armv7 i386 x86_64; do
+  install -m 0755 -- \
+    "$NXEXTRACT_ROOT/ui/release/$nxui_arch/nxextract-ui" \
+    "$GENERATOR_NXEXTRACT/ui/release/$nxui_arch/nxextract-ui"
+done
+# nxbootstrap 0.6.18's generate-port validates the nxsplash release manifest and
+# the per-arch splash artifact, so the sandboxed generator repository needs them.
+install -m 0644 -- "$FRAMEWORK_ROOT/nxsplash/VERSION" \
+  "$GENERATOR_FRAMEWORK/nxsplash/VERSION"
+install -m 0644 -- "$FRAMEWORK_ROOT/nxsplash/release/manifest-v1.json" \
+  "$GENERATOR_FRAMEWORK/nxsplash/release/manifest-v1.json"
+for nxsplash_arch in aarch64 armv7 i386 x86_64; do
+  install -m 0755 -- \
+    "$FRAMEWORK_ROOT/nxsplash/release/$nxsplash_arch/nxsplash-nextos" \
+    "$GENERATOR_FRAMEWORK/nxsplash/release/$nxsplash_arch/nxsplash-nextos"
+done
 install -m 0644 -- "$NXEXTRACT_ROOT/VERSION" \
   "$GENERATOR_NXEXTRACT/VERSION"
 install -m 0644 -- "$NXEXTRACT_LICENSE_SOURCE" \

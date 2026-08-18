@@ -1,11 +1,11 @@
 {
   "attr": {
     "arch": [
-      "aarch64",
       "armhf"
     ],
     "min_glibc": "2.28",
-    "title": "Titan Souls"
+    "title": "Titan Souls",
+    "runtime": []
   },
   "items": [
     "Titan Souls.sh",
