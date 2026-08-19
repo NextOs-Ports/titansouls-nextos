@@ -3,7 +3,7 @@
   "source_root": ".",
   "package": {
     "id": "titansouls",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "profile": "universal-portmaster",
     "launcher": "Titan Souls.sh",
     "launcher_chain": [
@@ -11,7 +11,7 @@
     ],
     "launcher_contract": {
       "generator": "nxbootstrap",
-      "version": "0.6.24",
+      "version": "0.6.25",
       "config_path": "titansouls/nxport.json",
       "config_sha256": "cf9d083f9e8c765e44325ff0224724194c774fc8e2fcb04688479f8585ebdde9"
     },
@@ -111,7 +111,7 @@
       "target": "Titan Souls.sh",
       "kind": "launcher",
       "mode": "0755",
-      "sha256": "e3cd163ff0b8706288397d4cdf5a8766f9effcb1ae8ce1cd968b5f257508c667"
+      "sha256": "65f5ca1c90dac97ae6bbfee2ef2a14b46e365ca2e00a73acb0edf4e28ec4523c"
     },
     {
       "source": "nxport.json",
@@ -135,7 +135,7 @@
       "architecture": "armv7",
       "build_profile": "universal-low-glibc",
       "provenance": "build_universal.sh; pinned offline Debian Buster ARMHF image sha256:58e229c82e8270fd69b0c307654e31793b781218884ce868844597ec4b8c9fef; NextOS SDK used for headers only",
-      "sha256": "06140a7ddcebf4401600f5c5f30811e01be5976ea157c99f682d8033f5e9072c",
+      "sha256": "f425d61bbcdc643421a16741f72e88321fa054857159791546fdea71a3bf2479",
       "needed": [
         "ld-linux-armhf.so.3",
         "libEGL.so.1",
@@ -189,7 +189,7 @@
       "target": "titansouls/version.txt",
       "kind": "payload",
       "mode": "0644",
-      "sha256": "8c54bfab7f1ae9bd1a7148eae41e7b0a8f4ad3726e0cac70f823a2d45db9e60c"
+      "sha256": "51c18dc8694861beb47a67894e61044864214435389f6d3a274704d9566ff96c"
     },
     {
       "source": "gamedata-template/README.txt",
