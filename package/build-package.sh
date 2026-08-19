@@ -43,16 +43,16 @@ NXEXTRACT_LICENSE_SOURCE="$NXEXTRACT_ROOT/LICENSE"
 PACKAGE_RUNTIME="$PORT_DIR/.build/package-runtime"
 LAUNCHER_PATH="$PORT_DIR/Titan Souls.sh"
 MATERIALIZED_LAUNCHER=0
-NXRELEASE_VERSION=0.2.22
-NXRELEASE_SHA256=5ae9647684a2dd7b0f21442769639cdadfb046360621194394640127b9337d69
+NXRELEASE_VERSION=0.2.23
+NXRELEASE_SHA256=7d4a0d3dce01e22a04a4c9e4c69c12d43425f710ee151a635e25c350b5f49ff1
 NXGENERATOR_VERSION=0.2.10
 NXGENERATOR_SHA256=8dabfa8b0e33d3c295b8813ca92c3098fce10248570e0e6e5c6f66077a3aadf3
-NXBOOTSTRAP_VERSION=0.6.23
+NXBOOTSTRAP_VERSION=0.6.24
 NXEXTRACT_VERSION=1.2.12
 NXEXTRACT_UI_SHA256=02ce707129b80ca1666f72c9e74792525dd2c7d2ada93bac5a93b9bfb41e3ff6
 MANIFEST="$PORT_DIR/nxrelease.json"
-DESTINATION=${1:-"$PORT_DIR/.build/release-1.0.4"}
-ARCHIVE_NAME=titansouls-1.0.4.zip
+DESTINATION=${1:-"$PORT_DIR/.build/release-1.0.5"}
+ARCHIVE_NAME=titansouls-1.0.5.zip
 
 fail() {
   printf 'titansouls package error: %s\n' "$*" >&2
@@ -91,7 +91,7 @@ require_pinned_file \
   "NXGenerator README template"
 require_pinned_file \
   "$NXBOOTSTRAP_ROOT/VERSION" \
-  4493977e6ccc85fd8b5c763eaacc54c7bf4367661ddf677c930996787796b3f0 \
+  1c0b9ce63553bd925488269e7917a48d59f1e4aaf673a56b165d1ad30c8982dd \
   "NXBootstrap VERSION"
 require_pinned_file \
   "$NXBOOTSTRAP_ROOT/tools/generate-port.py" \
@@ -99,7 +99,7 @@ require_pinned_file \
   "NXBootstrap generator"
 require_pinned_file \
   "$NXBOOTSTRAP_ROOT/templates/launcher.sh.in" \
-  ef6caadf8354af7019b4fd3491dd7d5bb1cfa7e10312162798d80ee93549b259 \
+  8a0076817e292c9943d35a8db590e433df121e4d0f9c8ac36020d33b6c2bcc4e \
   "NXBootstrap launcher template"
 require_pinned_file \
   "$NXCOMPAT_ROOT/capabilities-v1.json" \

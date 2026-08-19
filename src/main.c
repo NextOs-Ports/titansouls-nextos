@@ -649,13 +649,25 @@ int main(int argc, char *argv[]) {
   g_main_thread = pthread_self();
   logPrintf("=== TITAN SOULS nxloader (ARMv7 softfp) / NextOS ===\n");
 
-  /* gamedir = a pasta do proprio binario, salvo override explicito. Tudo do
-   * port (lib/, assets/, sdcard/) e' relativo a ela. */
+  /* gamedir, por ordem de confianca: override explicito > NXCOMPAT_GAME_DIR
+   * (o launcher SEMPRE exporta o caminho certo) > NXBOOTSTRAP_EXE (caminho
+   * real do binario, imune ao ld.so explicito) > /proc/self/exe > cwd.
+   * Caso de campo (Miyoo Flip/spruce): rodando atraves do ld-linux alternativo
+   * o /proc/self/exe aponta pro LD.SO -> gamedir virava a pasta do loader e o
+   * preflight recusava com 'missing capability=host.armhf-libs'. */
   char gamedir[PATH_MAX];
   {
     const char *env = getenv("TS_GAMEDIR");
+    const char *compat = getenv("NXCOMPAT_GAME_DIR");
+    const char *exe = getenv("NXBOOTSTRAP_EXE");
     if (env && env[0]) {
       snprintf(gamedir, sizeof(gamedir), "%s", env);
+    } else if (compat && compat[0]) {
+      snprintf(gamedir, sizeof(gamedir), "%s", compat);
+    } else if (exe && exe[0]) {
+      char self[PATH_MAX];
+      snprintf(self, sizeof(self), "%s", exe);
+      snprintf(gamedir, sizeof(gamedir), "%s", dirname(self));
     } else {
       char self[PATH_MAX];
       ssize_t n = readlink("/proc/self/exe", self, sizeof(self) - 1);
