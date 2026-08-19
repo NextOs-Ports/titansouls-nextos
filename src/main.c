@@ -738,6 +738,20 @@ int main(int argc, char *argv[]) {
                   &android_main_address, sizeof(android_main_address)) != 0)
     goto fail;
 
+  /* Zoom nativo: FP::GetZoom/SetZoom (FlashPunk) sao estaticos no engine.
+   * Ausencia NAO e erro — o shim so desliga o recurso. */
+  {
+    uintptr_t zoom_get = 0u, zoom_set = 0u;
+    if (ts_loader_find_export(loader, TS_LOADER_MODULE_GAME,
+                              "_ZN2FP7GetZoomEv", &zoom_get) != NXLOADER_OK)
+      zoom_get = 0u;
+    if (ts_loader_find_export(loader, TS_LOADER_MODULE_GAME,
+                              "_ZN2FP7SetZoomEf", &zoom_set) != NXLOADER_OK)
+      zoom_set = 0u;
+    android_shim_set_zoom_symbols((unsigned long)zoom_get,
+                                  (unsigned long)zoom_set);
+  }
+
   /* O APK 1.0.3 auditado declara JNI_NONE.  Encontrar JNI_OnLoad indica outro
    * guest e deve falhar, nunca criar uma sequencia Android improvisada. */
   loader_result = ts_loader_find_export(loader, TS_LOADER_MODULE_GAME,

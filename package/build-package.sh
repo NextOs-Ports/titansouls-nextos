@@ -43,16 +43,16 @@ NXEXTRACT_LICENSE_SOURCE="$NXEXTRACT_ROOT/LICENSE"
 PACKAGE_RUNTIME="$PORT_DIR/.build/package-runtime"
 LAUNCHER_PATH="$PORT_DIR/Titan Souls.sh"
 MATERIALIZED_LAUNCHER=0
-NXRELEASE_VERSION=0.2.20
-NXRELEASE_SHA256=fa5d81c3549e3ebae161bfa3caf548193bbe3ffa8bdda8474b01da6fc63c65aa
+NXRELEASE_VERSION=0.2.21
+NXRELEASE_SHA256=21c9ce2a6524b3ef8135b232916b69de52554c82545733f309a907c64f02f858
 NXGENERATOR_VERSION=0.2.10
 NXGENERATOR_SHA256=8dabfa8b0e33d3c295b8813ca92c3098fce10248570e0e6e5c6f66077a3aadf3
-NXBOOTSTRAP_VERSION=0.6.21
-NXEXTRACT_VERSION=1.2.11
+NXBOOTSTRAP_VERSION=0.6.22
+NXEXTRACT_VERSION=1.2.12
 NXEXTRACT_UI_SHA256=02ce707129b80ca1666f72c9e74792525dd2c7d2ada93bac5a93b9bfb41e3ff6
 MANIFEST="$PORT_DIR/nxrelease.json"
-DESTINATION=${1:-"$PORT_DIR/.build/release-1.0.2"}
-ARCHIVE_NAME=titansouls-1.0.2.zip
+DESTINATION=${1:-"$PORT_DIR/.build/release-1.0.3"}
+ARCHIVE_NAME=titansouls-1.0.3.zip
 
 fail() {
   printf 'titansouls package error: %s\n' "$*" >&2
@@ -91,11 +91,11 @@ require_pinned_file \
   "NXGenerator README template"
 require_pinned_file \
   "$NXBOOTSTRAP_ROOT/VERSION" \
-  7ac988c6ff0bec13c3aba379ef36569252b951715aeb1c20b47f9adedfa71442 \
+  c8f8c33a5871f99a42104f36d09c5f8798a58b9a3a25911d928db2062cc135fb \
   "NXBootstrap VERSION"
 require_pinned_file \
   "$NXBOOTSTRAP_ROOT/tools/generate-port.py" \
-  bdc12875ffae256fead9e0ecd079ecff0d2c138ada959d6bb16f03ea05ffe5e6 \
+  da1a0803042f0d6022183c4d6fd026f8a5cf83904473b28d27cd3428f18ca197 \
   "NXBootstrap generator"
 require_pinned_file \
   "$NXBOOTSTRAP_ROOT/templates/launcher.sh.in" \
@@ -111,11 +111,11 @@ require_pinned_file \
   "NXCompat quirk registry"
 require_pinned_file \
   "$NXEXTRACT_ROOT/VERSION" \
-  37310c7f348165122ccb9f4a854c29485395bb3af0659ba5a77be066c1511679 \
+  c808fbaccc0ce69f91e3a684328fc872f2212b4233fbd81c40a076e8032e1236 \
   "NXExtract VERSION"
 require_pinned_file \
   "$NXEXTRACT_ROOT/nxextract.py" \
-  5bc3a0f354b7bccc3fc22d788770d1fa3c0b03d2a4770bda384773b3f9f0753d \
+  8a616b3246250ea976f0935f964d1be31df186836249dfdd061558a3428fea3f \
   "NXExtract runtime"
 require_pinned_file \
   "$NXEXTRACT_ROOT/run-extractor.sh" \

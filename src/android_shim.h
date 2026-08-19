@@ -261,6 +261,10 @@ void ANativeActivity_finish(void *activity);
 void ANativeActivity_setWindowFlags(void *a, unsigned add, unsigned rem);
 
 /* ---------- loader-side API ---------- */
+
+/* Zoom nativo (FlashPunk FP::GetZoom/SetZoom); 0 = indisponivel. */
+void android_shim_set_zoom_symbols(unsigned long get_address,
+                                   unsigned long set_address);
 struct android_app *android_shim_init(void);
 void android_shim_send_cmd(struct android_app *app, int8_t cmd);
 void android_shim_install_exit_signals(void);

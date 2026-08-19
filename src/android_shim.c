@@ -20,6 +20,7 @@
 
 #define _GNU_SOURCE
 #include <SDL2/SDL.h>
+#include <string.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <poll.h>
@@ -232,6 +233,8 @@ static float dpad_axis(uint32_t buttons, nxinput_button negative,
   return (float)(pos - neg);
 }
 
+static void ts_zoom_update(float lt, float rt);
+
 static void emit_nxinput_motion(void) {
   nxinput_pad_state pad;
   int slot = nxinput_first_connected(g_nxinput);
@@ -252,6 +255,7 @@ static void emit_nxinput_motion(void) {
     hat_y = dpad_axis(pad.buttons, NXINPUT_BUTTON_DPAD_UP,
                       NXINPUT_BUTTON_DPAD_DOWN);
   }
+  ts_zoom_update(lt, rt);
   if (lx == g_ax_lx && ly == g_ax_ly && rx == g_ax_rx && ry == g_ax_ry &&
       lt == g_ax_lt && rt == g_ax_rt && hat_x == g_hat_x &&
       hat_y == g_hat_y)
@@ -305,6 +309,74 @@ void android_shim_install_exit_signals(void) {
 }
 
 static int g_kb_esc = 0, g_kb_ent = 0;
+
+/* ================= zoom: L2/R2 -> FP::SetZoom ================= */
+/* O engine (FlashPunk) exporta FP::GetZoom/SetZoom estaticos. No mobile o
+ * zoom era gesto de pinca; aqui L2 afasta e R2 aproxima chamando o METODO do
+ * proprio jogo (nunca emulamos dedo quando da pra chamar o motor). Guest e
+ * ARMv7 SOFTFP: float viaja em r0 como bits — assinaturas em uint32_t. */
+typedef uint32_t (*ts_fp_get_zoom_fn)(void);
+typedef void (*ts_fp_set_zoom_fn)(uint32_t float_bits);
+static ts_fp_get_zoom_fn g_fp_get_zoom;
+static ts_fp_set_zoom_fn g_fp_set_zoom;
+static int g_zoom_probe_done;
+static float g_zoom_baseline = 1.0f;
+static Uint32 g_zoom_last_ms;
+
+static float ts_bits_to_float(uint32_t bits) {
+  float value; memcpy(&value, &bits, sizeof value); return value;
+}
+static uint32_t ts_float_to_bits(float value) {
+  uint32_t bits; memcpy(&bits, &value, sizeof bits); return bits;
+}
+
+void android_shim_set_zoom_symbols(unsigned long get_address,
+                                   unsigned long set_address) {
+  g_fp_get_zoom = (ts_fp_get_zoom_fn)get_address;
+  g_fp_set_zoom = (ts_fp_set_zoom_fn)set_address;
+  if (!get_address || !set_address)
+    logPrintf("android_shim: zoom nativo INDISPONIVEL "
+              "(FP::GetZoom/SetZoom nao exportados)\n");
+}
+
+static void ts_zoom_update(float lt, float rt) {
+  Uint32 now;
+  float dt, current, factor, minimum, maximum;
+  if (!g_fp_get_zoom || !g_fp_set_zoom)
+    return;
+  now = SDL_GetTicks();
+  dt = g_zoom_last_ms ? (float)(now - g_zoom_last_ms) / 1000.0f : 0.0f;
+  g_zoom_last_ms = now;
+  if (dt <= 0.0f || dt > 0.25f)
+    return;
+  if (lt < 0.45f && rt < 0.45f)
+    return;
+  /* So tocamos no engine com o gatilho APERTADO — a essa altura o jogo ja
+   * esta renderizando. Ler FP::GetZoom durante o boot deref-ava estado ainda
+   * nao inicializado do engine (SIGSEGV provado no device). */
+  if (!g_zoom_probe_done) {
+    g_zoom_probe_done = 1;
+    g_zoom_baseline = ts_bits_to_float(g_fp_get_zoom());
+    if (!(g_zoom_baseline > 0.05f && g_zoom_baseline < 20.0f))
+      g_zoom_baseline = 1.0f;
+    logPrintf("android_shim: zoom nativo ligado (L2 afasta / R2 aproxima); "
+              "base=%.3f\n", (double)g_zoom_baseline);
+  }
+  current = ts_bits_to_float(g_fp_get_zoom());
+  if (!(current > 0.01f && current < 50.0f))
+    return;
+  factor = 1.0f;
+  if (lt >= 0.45f)
+    factor /= 1.0f + 1.4f * dt; /* afastar */
+  if (rt >= 0.45f)
+    factor *= 1.0f + 1.4f * dt; /* aproximar */
+  minimum = g_zoom_baseline * 0.45f;
+  maximum = g_zoom_baseline * 2.2f;
+  current *= factor;
+  if (current < minimum) current = minimum;
+  if (current > maximum) current = maximum;
+  g_fp_set_zoom(ts_float_to_bits(current));
+}
 
 static void begin_shutdown(const char *why) {
   if (g_shutdown) return;
