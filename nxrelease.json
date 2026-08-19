@@ -3,7 +3,7 @@
   "source_root": ".",
   "package": {
     "id": "titansouls",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "profile": "universal-portmaster",
     "launcher": "Titan Souls.sh",
     "launcher_chain": [
@@ -11,7 +11,7 @@
     ],
     "launcher_contract": {
       "generator": "nxbootstrap",
-      "version": "0.6.25",
+      "version": "0.6.26",
       "config_path": "titansouls/nxport.json",
       "config_sha256": "cf9d083f9e8c765e44325ff0224724194c774fc8e2fcb04688479f8585ebdde9"
     },
@@ -111,7 +111,7 @@
       "target": "Titan Souls.sh",
       "kind": "launcher",
       "mode": "0755",
-      "sha256": "65f5ca1c90dac97ae6bbfee2ef2a14b46e365ca2e00a73acb0edf4e28ec4523c"
+      "sha256": "8fed7ea93a691a54e1d18d9bc026dae3fa006528c8531966e7947b54f97f93a1"
     },
     {
       "source": "nxport.json",
@@ -189,7 +189,7 @@
       "target": "titansouls/version.txt",
       "kind": "payload",
       "mode": "0644",
-      "sha256": "51c18dc8694861beb47a67894e61044864214435389f6d3a274704d9566ff96c"
+      "sha256": "6d6b9230dd8b8aac527f8929b7c2fc1fa0365deccca856216de979d6f5c6a6fe"
     },
     {
       "source": "gamedata-template/README.txt",
