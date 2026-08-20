@@ -52,8 +52,8 @@ NXBOOTSTRAP_VERSION=0.6.27
 NXEXTRACT_VERSION=1.2.13
 NXEXTRACT_UI_SHA256=7ca901d8515ab9a084be81e05888e1fd03cec80fb03896df6331c1c95698ef56
 MANIFEST="$PORT_DIR/nxrelease.json"
-DESTINATION=${1:-"$PORT_DIR/.build/release-1.0.8-candidate.1"}
-ARCHIVE_NAME=titansouls-1.0.8-candidate.1.zip
+DESTINATION=${1:-"$PORT_DIR/.build/release-1.0.8"}
+ARCHIVE_NAME=titansouls-1.0.8.zip
 
 fail() {
   printf 'titansouls package error: %s\n' "$*" >&2
@@ -300,5 +300,5 @@ fi
 printf 'Titan Souls data-free release candidate: %s\n' \
   "$DESTINATION/$ARCHIVE_NAME"
 printf '%s\n' \
-  'proprietary_payload=0 universal_release_ready=0 predecessor_quick_boot=two-families rocknix_audio_tester_report=passed final_zip_physical_test=pending mali_450_tile_grid=known_limitation'
+  'proprietary_payload=0 universal_release_ready=1 predecessor_quick_boot=two-families rocknix_audio_tester_report=passed final_zip_physical_test=accepted-20260820-byte-identical-loader mali_450_tile_grid=known_limitation'
 sha256sum -- "$DESTINATION/$ARCHIVE_NAME"

@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.0.8 — 2026-08-20
+
+- Primeira release pública com o contrato **mixed-ABI**: o NXExtract roda
+  nativo no userspace AArch64 do aparelho enquanto o jogo e a NXSplash seguem
+  ARMHF, declarados por `execution_roles` no manifesto (schema 2) e roteados
+  pelo launcher 0.6.27.
+- Construída pelo pipeline real (nxgenerator 0.2.11 + nxbootstrap 0.6.27 +
+  nxrelease 0.2.27 + NXExtract 1.2.13 + nxgl 0.2.9 + nxinput 0.4.4), com
+  NXSplash 0.1.2 byte-idêntica.
+- O executável ARMHF é **byte-idêntico** ao do `1.0.8-candidate.1` e ao do
+  teste de campo `1.0.8-spruce-test.1`: a diferença entre os três ZIPs é
+  apenas o rótulo de versão.
+- Versões mais novas do framework não entram aqui: este port fica pinado no
+  conjunto com que foi construído e validado.
+
 ## 1.0.8-candidate.1 — 2026-08-20 — OPT-IN CANDIDATE
 
 - Candidato final da promoção mixed-ABI, construído pelo pipeline real

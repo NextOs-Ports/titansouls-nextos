@@ -1,12 +1,29 @@
-Titan Souls mixed-ABI final candidate provenance
-================================================
+Titan Souls 1.0.8 mixed-ABI release provenance
+==============================================
 
-Candidate ID: 1.0.8-candidate.1
-Status: opt-in acceptance candidate built by the real pipeline; NOT a public
-release. Physical acceptance on a Miyoo Flip/spruceOS is still pending.
+Release: 1.0.8
+Status: PUBLIC RELEASE. Accepted by the NextOS on 2026-08-20.
 
-Archive: titansouls-1.0.8-candidate.1.zip
-Archive SHA-256: d95d2a46186ae5ee41a03502325638c5d15c95372d74882481c88e4ca27eb521
+Archive: titansouls-1.0.8.zip
+Archive SHA-256: c25dfa0ac1611f67cd84dfd3bba2a55507d0689f6f2c127e55c63dd30d83752f
+
+Predecessor candidate: titansouls-1.0.8-candidate.1.zip
+Candidate SHA-256: d95d2a46186ae5ee41a03502325638c5d15c95372d74882481c88e4ca27eb521
+
+The released ZIP differs from the accepted candidate ONLY in the version
+label: version.txt and the three .nxrelease metadata documents that embed the
+version string. Launcher, ARMHF game executable, ARMHF NXSplash, the AArch64
+NXExtract UI and the whole NXExtract set are byte-identical (verified by
+member-by-member comparison of both archives).
+
+Immutable tags of the promoted set (monorepo, all at commit 7c49afc):
+- nxbootstrap-v0.6.27, nxextract-v1.2.13, nxgenerator-v0.2.11,
+  nxgl-v0.2.9, nxinput-v0.4.4, nxrelease-v0.2.27, framework-tests-v1.1.0
+
+Newer framework versions (nxbootstrap 0.6.28, NXExtract 1.2.14,
+nxgenerator 0.2.12, nxrelease 0.2.28) are tagged separately and are available
+for NEW ports only. This release stays pinned to the set it was built and
+validated with.
 
 Promoted framework versions (opt-in, none of them migrates another port):
 - nxbootstrap 0.6.27 (execution roles)
@@ -43,4 +60,6 @@ Host evidence produced for this candidate (PC only, no device):
   drivers=KMSDRM,dummy): no hint -> no-hint; injected x11 -> cleared-unsupported;
   KMSDRM -> preserved-supported
 
-No game data is bundled. No physical-device success is claimed by this file.
+No game data is bundled. The physical evidence this release relies on is the
+field run of titansouls-1.0.8-spruce-test.1 on a Miyoo Flip/spruceOS, whose
+ARMHF executable is byte-identical to the one shipped here.
