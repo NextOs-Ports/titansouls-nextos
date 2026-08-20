@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.0.9 — 2026-08-20
+
+- **Corrige a regressão que impedia o 1.0.8 de abrir no ArkOS/dArkOS.** O
+  launcher lia `/usr/lib/arm-linux-gnueabihf/libc.so` — um **script do GNU ld**
+  no Debian multiarch — como ELF inválido e descartava a closure ARMHF
+  inteira; o preflight morria antes de o NXExtract desenhar. Corrigido no
+  nxbootstrap 0.6.29: o que não é ELF é ignorado, e ELF de ABI errada continua
+  derrubando a raiz.
+- Conjunto: nxbootstrap 0.6.29, nxrelease 0.2.29, NXExtract 1.2.14 (UI
+  AArch64), nxgenerator 0.2.12, nxgl 0.2.9, nxinput 0.4.4, NXSplash 0.1.2.
+- Validado fisicamente do zero em **dois** aparelhos: dArkOS (aberto pelo
+  frontend — NXExtract gráfico KMSDRM, NXSplash 5 s, título, controles, áudio,
+  jogo e saída por SELECT+START com status 0) e Mali-450/NextOS (NXExtract
+  gráfico, NXSplash 5 s, `nx-verify` VERDE com vídeo=IMAGEM e áudio=SOM, saída
+  status 0).
+- O executável ARMHF não mudou: a diferença para as versões anteriores é toda
+  do lado host.
+
+## 1.0.8 — SUPERSEDIDA
+
+Não publicar. A tag `v1.0.8` permanece como histórico; o ZIP não abre no
+ArkOS/dArkOS pelo motivo descrito acima.
+
 ## 1.0.8 — 2026-08-20
 
 - Primeira release pública com o contrato **mixed-ABI**: o NXExtract roda

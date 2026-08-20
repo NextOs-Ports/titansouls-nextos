@@ -2,7 +2,17 @@ Titan Souls 1.0.8 mixed-ABI release provenance
 ==============================================
 
 Release: 1.0.8
-Status: PUBLIC RELEASE. Accepted by the NextOS on 2026-08-20.
+Status: SUPERSEDED by 1.0.9 on 2026-08-20. Do not publish.
+
+Reason: on ArkOS/dArkOS the generated launcher (nxbootstrap 0.6.27) read
+/usr/lib/arm-linux-gnueabihf/libc.so -- a GNU ld linker script in Debian
+multiarch -- as an invalid ELF and discarded the whole ARMHF closure:
+
+  EXECUTION CANDIDATE REJECTED: role=splash root=/usr/lib/arm-linux-gnueabihf reason=invalid-elf
+  ERROR: execution role splash has no coherent armv7 closure
+
+The preflight died before NXExtract could draw anything. Fixed in nxbootstrap
+0.6.29 and released as 1.0.9. The 1.0.8 tag stays where it is, as history.
 
 Archive: titansouls-1.0.8.zip
 Archive SHA-256: c25dfa0ac1611f67cd84dfd3bba2a55507d0689f6f2c127e55c63dd30d83752f

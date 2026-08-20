@@ -44,16 +44,16 @@ NXEXTRACT_LICENSE_SOURCE="$NXEXTRACT_ROOT/LICENSE"
 PACKAGE_RUNTIME="$PORT_DIR/.build/package-runtime"
 LAUNCHER_PATH="$PORT_DIR/Titan Souls.sh"
 MATERIALIZED_LAUNCHER=0
-NXRELEASE_VERSION=0.2.27
-NXRELEASE_SHA256=f303ddb32c5bff7bffab32b7c126627fec61ebbca883abac3942ff864f407bb4
-NXGENERATOR_VERSION=0.2.11
-NXGENERATOR_SHA256=2f9a8af68249d27abffac810f30d77965af8cea75c52f20d1c1bac21185b96c2
-NXBOOTSTRAP_VERSION=0.6.27
-NXEXTRACT_VERSION=1.2.13
+NXRELEASE_VERSION=0.2.29
+NXRELEASE_SHA256=397096ff058062476b61a1baa8b1620a4d4244f06aa9e9c7edac6bf25ef05cbe
+NXGENERATOR_VERSION=0.2.12
+NXGENERATOR_SHA256=fcfc13d5a96cc0ce3bb81b3f9e9ef50fb290e6a210048c411b8cb6c5f2472292
+NXBOOTSTRAP_VERSION=0.6.29
+NXEXTRACT_VERSION=1.2.14
 NXEXTRACT_UI_SHA256=7ca901d8515ab9a084be81e05888e1fd03cec80fb03896df6331c1c95698ef56
 MANIFEST="$PORT_DIR/nxrelease.json"
-DESTINATION=${1:-"$PORT_DIR/.build/release-1.0.8"}
-ARCHIVE_NAME=titansouls-1.0.8.zip
+DESTINATION=${1:-"$PORT_DIR/.build/release-1.0.9"}
+ARCHIVE_NAME=titansouls-1.0.9.zip
 
 fail() {
   printf 'titansouls package error: %s\n' "$*" >&2
@@ -84,7 +84,7 @@ require_pinned_file() {
   fail "NXExtract version drifted"
 require_pinned_file \
   "$FRAMEWORK_ROOT/nxgenerator/VERSION" \
-  bbab81dca58f2b892db293acbba7fe5731667b67876f6812e3e7b9e2253a5c51 \
+  b1d246bf58dfe9d621c372fbca4fdda71a56ddd79c641b9e3b7dde08ca4d7512 \
   "NXGenerator VERSION"
 require_pinned_file \
   "$FRAMEWORK_ROOT/nxgenerator/templates/README.md.in" \
@@ -92,15 +92,15 @@ require_pinned_file \
   "NXGenerator README template"
 require_pinned_file \
   "$NXBOOTSTRAP_ROOT/VERSION" \
-  8759c4fa1e489f72c3df021cd56022d82e805c25d701c752f66fce797514124a \
+  f7f3278ff39ee6347116ae00b2b4f51c6e5958ae653f30b32e7f8881a3edcb3d \
   "NXBootstrap VERSION"
 require_pinned_file \
   "$NXBOOTSTRAP_ROOT/tools/generate-port.py" \
-  ee5c461b45715d670aad2836a54317a14101b579a8b6ba069050e5346d401430 \
+  f947bddcc2fb0b3078e5a3e96a0df10f59ad206b42282a3d28646531c363de42 \
   "NXBootstrap generator"
 require_pinned_file \
   "$NXBOOTSTRAP_ROOT/templates/launcher.sh.in" \
-  bcb8dc5cb8637773bd9feae6289ce83229d137232f080646bc7eb7f89de37f47 \
+  f413a7090cfcec04d8c4958b432aef33a23d8ec75f14f66942c06988a03ba693 \
   "NXBootstrap launcher template"
 require_pinned_file \
   "$NXCOMPAT_ROOT/capabilities-v1.json" \
@@ -112,11 +112,11 @@ require_pinned_file \
   "NXCompat quirk registry"
 require_pinned_file \
   "$NXEXTRACT_ROOT/VERSION" \
-  c21698334b1e2308b8556ac1d10402342b8d3e837f65fa1c431eb23392824b1d \
+  22e988bfb2127d8584cc829f76868c2c85e138af32fe0989b29f7580b88a00a5 \
   "NXExtract VERSION"
 require_pinned_file \
   "$NXEXTRACT_ROOT/nxextract.py" \
-  bd9788283f110dfa9cea62848b3fd49fd3293cae4b3854d7e096584df7e6c17f \
+  71d72b57bc79f07c1fde4f11a4eec30048da972af91b0a616ff31ed0584c2177 \
   "NXExtract runtime"
 require_pinned_file \
   "$NXEXTRACT_ROOT/run-extractor.sh" \
@@ -300,5 +300,5 @@ fi
 printf 'Titan Souls data-free release candidate: %s\n' \
   "$DESTINATION/$ARCHIVE_NAME"
 printf '%s\n' \
-  'proprietary_payload=0 universal_release_ready=1 predecessor_quick_boot=two-families rocknix_audio_tester_report=passed final_zip_physical_test=accepted-20260820-byte-identical-loader mali_450_tile_grid=known_limitation'
+  'proprietary_payload=0 universal_release_ready=1 predecessor_quick_boot=two-families rocknix_audio_tester_report=passed final_zip_physical_test=accepted-arkos-and-mali450-1.0.9 mali_450_tile_grid=known_limitation'
 sha256sum -- "$DESTINATION/$ARCHIVE_NAME"

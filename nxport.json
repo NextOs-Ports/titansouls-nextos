@@ -32,7 +32,7 @@
   "launcher_name": "Titan Souls.sh",
   "nxextract": {
     "mode": "yes",
-    "version": "1.2.13"
+    "version": "1.2.14"
   },
   "prepare_script": "",
   "private_library_paths": [],

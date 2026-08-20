@@ -1,0 +1,57 @@
+Titan Souls 1.0.9 release provenance
+====================================
+
+Release: 1.0.9
+Status: PUBLIC RELEASE. Physically validated on 2026-08-20 on two devices.
+
+Archive: titansouls-1.0.9.zip
+Archive SHA-256: 1baffa486908f22e7228a0ef0cbfc61e54812b5cd3229ba470616c5d8332b8fc
+
+Supersedes 1.0.8, which never reached a device screen: its launcher
+(nxbootstrap 0.6.27) treated the Debian multiarch GNU ld script
+/usr/lib/arm-linux-gnueabihf/libc.so as an invalid ELF and discarded the whole
+ARMHF closure, so the preflight failed before NXExtract could draw.
+
+Framework set (immutably tagged in the monorepo):
+- nxbootstrap 0.6.29  (linker script skipped in the per-role closure)
+- nxrelease 0.2.29
+- NXExtract 1.2.14 with the canonical AArch64 UI
+- nxgenerator 0.2.12
+- nxgl 0.2.9, nxinput 0.4.4, NXSplash 0.1.2 byte-identical
+
+Port executable:
+- Name: titansouls-nextos
+- Architecture: Linux ARMHF / ARMv7-A hard-float
+- SHA-256: 6ee5e4c876a44a96dddb1424a964440ed79f5d152b3ec827be532871ba6c23a0
+- GNU Build-ID: 67c44f9ea772287f2487051ad31375991e2f38a6
+- Maximum GLIBC symbol: GLIBC_2.28 (public ceiling 2.30)
+
+The ARMHF executable is unchanged since the field test 1.0.8-spruce-test.1:
+every difference between those releases is host-side.
+
+PHYSICAL EVIDENCE -- dArkOS (opened from the frontend, clean install from zero)
+- EXECUTION CANDIDATE SKIPPED: role=splash file=/usr/lib/arm-linux-gnueabihf/libc.so reason=not-an-elf
+- EXECUTION CANDIDATE SKIPPED: role=splash file=/lib/arm-linux-gnueabihf/libc.so reason=not-an-elf
+- EXECUTION RECEIPT: role=extractor abi=aarch64 executor=native closure=host
+- EXECUTION RECEIPT: role=splash abi=armv7 closure=firmware
+  roots=/usr/lib/arm-linux-gnueabihf:/lib/arm-linux-gnueabihf
+- EXECUTION RECEIPT: role=game abi=armv7 closure=firmware-and-port
+- NXExtract graphical: ui.mode=visible renderer=sdl driver=KMSDRM,
+  complete extraction from zero -> NXE0000, 190,941,465 bytes, 15 items
+- NXSplash: renderer=sdl driver=KMSDRM duration_ms=5000
+- title screen, controls, audio and gameplay confirmed by the NextOS
+- exit chord: "saida por SELECT+START (nxinput) -> pause/save, _exit em 700ms"
+- RUNTIME DIAGNOSIS: clean; phase runtime EXIT status=ok child_status=0
+
+PHYSICAL EVIDENCE -- Mali-450 / NextOS (clean install from zero)
+- same SKIPPED/RECEIPT lines for /usr/lib32/libc.so
+- NXExtract graphical: ui.mode=visible renderer=sdl -> NXE0000, same 15 items
+- NXSplash: renderer=sdl driver=mali duration_ms=5000
+- nx-verify: GREEN, video=IMAGE audio=SOUND process=ALIVE, with the
+  instrument's own self-test green in the same run
+- kernel framebuffer log confirms who drew:
+  "fb: osd[0] enable: 1 (nxsplash-nextos)" then "(titansouls-next)"
+- pad detected: "android_shim: nxinput ativo, cursor OFF, pads=1"
+- exit: phase runtime EXIT status=ok child_status=0, no Mali teardown hang
+
+No game data is bundled.
