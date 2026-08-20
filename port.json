@@ -1,7 +1,8 @@
 {
   "attr": {
     "arch": [
-      "armhf"
+      "armhf",
+      "aarch64"
     ],
     "min_glibc": "2.28",
     "title": "Titan Souls",

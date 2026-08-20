@@ -1,0 +1,58 @@
+Titan Souls Spruce ARMHF private-test provenance
+================================================
+
+Test ID: 1.0.8-spruce-test.1
+Status: isolated acceptance candidate; not a public release
+Source branch: test/spruce-armhf-1.0.8
+Framework source commit: 0dd51535319592188c187222b39018c0ba239db6
+Base release ZIP SHA-256: a5fb17fc7ac6f23fafaf10f1a19891d36f4da969bc68edd55789fe5321cff248
+
+Port executable:
+- Name: titansouls-nextos
+- Architecture: Linux ARMHF / ARMv7-A hard-float
+- ELF interpreter: /lib/ld-linux-armhf.so.3
+- SHA-256: 6ee5e4c876a44a96dddb1424a964440ed79f5d152b3ec827be532871ba6c23a0
+- GNU Build-ID: 67c44f9ea772287f2487051ad31375991e2f38a6
+- Maximum GLIBC symbol: GLIBC_2.28
+
+Mixed-ABI test helpers:
+- NXExtract 1.2.12 UI: canonical AArch64 artifact
+- NXExtract UI SHA-256: 7ca901d8515ab9a084be81e05888e1fd03cec80fb03896df6331c1c95698ef56
+- NXExtract UI maximum GLIBC symbol: GLIBC_2.17
+- NXSplash 0.1.2: canonical ARMHF artifact, unchanged
+- NXSplash SHA-256: 88a2b39be45826348375f966af536e976b37eefd18a88c8fcff75f6fd08015d8
+- NXSplash maximum GLIBC symbol: GLIBC_2.4
+
+Framework components used to build the port executable:
+- nxloader 0.7.2
+- nxandroid 0.2.1
+- nxcompat 0.2.2
+- nxgl 0.2.8
+- nxinput 0.4.3
+- nxaudio 0.2.0
+
+Host/runtime gates retained from the pinned base:
+- nxbootstrap 0.6.26, with a test-local visible-renderer check
+- NXExtract 1.2.12, with NXEXTRACT_REQUIRE_VISIBLE_UI=1
+- nxgenerator 0.2.10
+- nxrelease 0.2.25
+- nxabi 0.1.0
+- nxobs 0.2.1
+
+Test-local correction under evaluation:
+- keep NXExtract on the native AArch64 Spruce userspace;
+- run the game and NXSplash through Spruce's alternate ARMHF loader when the
+  baked interpreter path is absent, preserving direct exec if it already exists;
+- construct an ARMHF-only library path from the firmware-owned 32-bit roots;
+- remove an incompatible video-backend hint inherited from the AArch64
+  frontend and let the 32-bit SDL autodetect its advertised backend;
+- select the official image's direct unversioned ARMHF EGL/GLES providers;
+- record SDL's compiled video drivers, device-node access and the immediate
+  SDL_InitSubSystem(VIDEO) result in the runtime log;
+- reject headless NXExtract and reject NXSplash renderer=none or diagnostic-only
+  TTY output; only SDL/fbdev counts as the visible five-second handoff.
+
+No game data is bundled. No physical-device success is claimed by this file.
+Promotion to the framework or to a public Titan Souls release requires a clean
+physical first-install test and regression evidence; this package exists to
+produce either that success or an exact diagnostic failure.

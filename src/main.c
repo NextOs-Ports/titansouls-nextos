@@ -44,6 +44,7 @@
 #include "loader_compat.h"
 #include "platform_shims.h"
 #include "runtime_hooks.h"
+#include "spruce_armhf_diag.h"
 #include "ts_loader.h"
 #include "util.h"
 
@@ -713,6 +714,8 @@ int main(int argc, char *argv[]) {
   { const char *db = "gamecontrollerdb.txt";
     if (access(db, R_OK) == 0 && SDL_GameControllerAddMappingsFromFile(db) > 0)
       logPrintf("gamecontrollerdb.txt do port carregado\n"); }
+
+  ts_spruce_armhf_diag_pre_video();
 
   egl_shim_create_window();
   if (!egl_shim_get_window()) {

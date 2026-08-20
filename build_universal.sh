@@ -139,6 +139,7 @@ PORT_SOURCES=(
   src/egl_shim.c src/jni_shim.c src/language_menu.c
   src/language_menu_policy.c src/opensles_shim.c src/setjmp_bridge.S
   src/ts_loader.c src/loader_compat.c src/framework_bridge.c src/lifecycle.c
+  src/spruce_armhf_diag.c
 )
 for source in "${PORT_SOURCES[@]}"; do
   compile_source port "$source"
@@ -215,6 +216,7 @@ make_stub libGLESv2.so.2 '^gl[A-Z]' GLESv2
 "$CC" -no-pie -rdynamic -o "$OUTPUT" "${OBJS[@]}" \
   -L"$STUBDIR" -Wl,--no-as-needed -lSDL2 -lEGL -lGLESv2 \
   -Wl,--as-needed -ldl -lm -lpthread -latomic -lgcc_s \
+  -Wl,--wrap=SDL_InitSubSystem \
   -Wl,--build-id=sha1,-z,relro,-z,now,-z,noexecstack
 
 MAX_GLIBC=$(

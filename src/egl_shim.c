@@ -208,9 +208,26 @@ void egl_shim_create_window(void) {
   memset(&report, 0, sizeof(report));
   status = nxgl_open_v2(&options, &opened, &report);
   if (status != NXGL_SUCCESS) {
+    size_t journal_index;
     fprintf(stderr,
             "[egl_shim] nxgl_open_v2 falhou: status=%d stage=%d reason=%d\n",
             status, (int)report.final_stage, (int)report.final_reason);
+    if (getenv("TS_SPRUCE_ARMHF_TEST")) {
+      for (journal_index = 0; journal_index < report.journal_count;
+           ++journal_index) {
+        const nxgl_attempt_entry_v2 *entry = &report.journal[journal_index];
+        fprintf(stderr,
+                "[spruce-armhf-test] nxgl journal round=%u attempt=%u "
+                "candidate=%zu stage=%d reason=%d result=%d detail=%s\n",
+                entry->round_index, entry->attempt_index,
+                entry->candidate_index, (int)entry->stage,
+                (int)entry->reason, entry->result, entry->detail);
+      }
+      fprintf(stderr,
+              "[spruce-armhf-test] SDL error after nxgl failure=%s\n",
+              SDL_GetError()[0] ? SDL_GetError()
+                                : "(none; see immediate wrapper line)");
+    }
     if (opened) {
       int close_status = nxgl_close_v2(opened);
       fprintf(stderr, "[egl_shim] limpeza nxgl apos falha: %d\n",
