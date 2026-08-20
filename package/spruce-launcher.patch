@@ -1,0 +1,36 @@
+--- launcher.sh
++++ launcher.sh
+@@ -199,0 +200,8 @@
++# Private Spruce ARMHF acceptance candidate.  The game is still ARMHF, but
++# NXExtract deliberately uses its canonical AArch64 renderer on Spruce's
++# already-working 64-bit userspace.  A headless setup would hide the exact
++# regression this package is meant to test, so fail closed before owner data is
++# installed when the UI cannot become visible.
++export NXEXTRACT_REQUIRE_VISIBLE_UI=1
++echo "SPRUCE ARMHF TEST 1.0.8-spruce-test.1: visible AArch64 NXExtract UI is mandatory; game and NXSplash remain ARMHF"
++
+@@ -840,3 +848,11 @@
+-if NX_SPLASH_TTY="${CUR_TTY:-}" \
+-   LD_LIBRARY_PATH="$NXBOOTSTRAP_SPLASH_LIBS${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
+-   $NXBOOTSTRAP_SPLASH_PREFIX "$NXBOOTSTRAP_SPLASH" 'Titan Souls'; then
++NXBOOTSTRAP_SPLASH_STATUS=0
++NXBOOTSTRAP_SPLASH_OUTPUT=$(
++  NX_SPLASH_TTY="${CUR_TTY:-}" \
++    LD_LIBRARY_PATH="$NXBOOTSTRAP_SPLASH_LIBS${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
++    $NXBOOTSTRAP_SPLASH_PREFIX "$NXBOOTSTRAP_SPLASH" 'Titan Souls' 2>&1
++) || NXBOOTSTRAP_SPLASH_STATUS=$?
++[ -n "$NXBOOTSTRAP_SPLASH_OUTPUT" ] && \
++  printf '%s\n' "$NXBOOTSTRAP_SPLASH_OUTPUT"
++if [ "$NXBOOTSTRAP_SPLASH_STATUS" -eq 0 ] && \
++   printf '%s\n' "$NXBOOTSTRAP_SPLASH_OUTPUT" | \
++     grep -Eq '^nxsplash: renderer=(sdl|fbdev)( |$)'; then
+@@ -849 +865,4 @@
+-  NXBOOTSTRAP_SPLASH_STATUS=$?
++  if [ "$NXBOOTSTRAP_SPLASH_STATUS" -eq 0 ]; then
++    NXBOOTSTRAP_SPLASH_STATUS=70
++    echo "ERROR: mandatory nxsplash completed without a visible renderer"
++  fi
+@@ -857 +876,2 @@
+-  NXBOOTSTRAP_SPLASH_PREFIX NXBOOTSTRAP_SPLASH_INTERP d
++  NXBOOTSTRAP_SPLASH_OUTPUT NXBOOTSTRAP_SPLASH_PREFIX \
++  NXBOOTSTRAP_SPLASH_INTERP d

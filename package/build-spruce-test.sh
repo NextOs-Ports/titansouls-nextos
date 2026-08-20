@@ -16,6 +16,8 @@ NEXTOS_SOURCE_ROOT=${NEXTOS_SOURCE_ROOT:?set NEXTOS_SOURCE_ROOT to the pinned Ne
 TEST_ID=1.0.8-spruce-test.1
 ARCHIVE_NAME="titansouls-$TEST_ID.zip"
 EXPECTED_BASE_SHA256=a5fb17fc7ac6f23fafaf10f1a19891d36f4da969bc68edd55789fe5321cff248
+EXPECTED_BASE_LAUNCHER_SHA256=8fed7ea93a691a54e1d18d9bc026dae3fa006528c8531966e7947b54f97f93a1
+EXPECTED_TEST_LAUNCHER_SHA256=297037fc509f3cf0cbee6036a82b95587321ec7d965aae793b7796ba3f68987c
 EXPECTED_GAME_SHA256=6ee5e4c876a44a96dddb1424a964440ed79f5d152b3ec827be532871ba6c23a0
 EXPECTED_UI_SHA256=7ca901d8515ab9a084be81e05888e1fd03cec80fb03896df6331c1c95698ef56
 EXPECTED_SPLASH_SHA256=88a2b39be45826348375f966af536e976b37eefd18a88c8fcff75f6fd08015d8
@@ -57,11 +59,15 @@ require_hash "$GAME_BINARY" "$EXPECTED_GAME_SHA256" "ARMHF game executable"
 require_hash "$NXEXTRACT_UI" "$EXPECTED_UI_SHA256" "canonical AArch64 NXExtract UI"
 
 for source_file in \
-  "Titan Souls.sh" port-env.sh port.json INSTALLATION.md SPRUCE-TEST.md \
+  port-env.sh port.json INSTALLATION.md SPRUCE-TEST.md \
   BUILD-PROVENANCE-SPRUCE-TEST.txt CHANGELOG.md version.txt; do
   [[ -f $PORT_DIR/$source_file && ! -L $PORT_DIR/$source_file ]] ||
     fail "source overlay is missing or unsafe: $source_file"
 done
+[[ -f $PORT_DIR/package/spruce-launcher.patch && \
+   ! -L $PORT_DIR/package/spruce-launcher.patch ]] ||
+  fail "test-local launcher patch is missing or unsafe"
+command -v patch >/dev/null 2>&1 || fail "patch is required to materialize the test launcher"
 
 WORK_ROOT=$(mktemp -d "${TMPDIR:-/tmp}/titansouls-spruce-test.XXXXXX")
 cleanup() {
@@ -101,6 +107,8 @@ unzip -q -- "$BASE_ZIP" -d "$STAGE"
 [[ -f $STAGE/Titan\ Souls.sh && -d $STAGE/titansouls ]] ||
   fail "base ZIP layout is invalid"
 [[ ! -L $STAGE/titansouls ]] || fail "base port directory is a symlink"
+require_hash "$STAGE/Titan Souls.sh" "$EXPECTED_BASE_LAUNCHER_SHA256" \
+  "base nxbootstrap launcher"
 
 # Stale public-release attestations describe 1.0.7 and must never be carried
 # into this intentionally private, mixed-ABI test package.
@@ -114,7 +122,14 @@ case $STALE_NXRELEASE in
   *) fail "unsafe stale-attestation target" ;;
 esac
 
-install -m 0755 -- "$PORT_DIR/Titan Souls.sh" "$STAGE/Titan Souls.sh"
+mv -- "$STAGE/Titan Souls.sh" "$STAGE/launcher.sh"
+patch --batch --fuzz=0 --no-backup-if-mismatch -d "$STAGE" -p0 \
+  < "$PORT_DIR/package/spruce-launcher.patch" >/dev/null ||
+  fail "test-local launcher patch did not apply exactly"
+mv -- "$STAGE/launcher.sh" "$STAGE/Titan Souls.sh"
+chmod 0755 "$STAGE/Titan Souls.sh"
+require_hash "$STAGE/Titan Souls.sh" "$EXPECTED_TEST_LAUNCHER_SHA256" \
+  "materialized Spruce test launcher"
 install -m 0755 -- "$GAME_BINARY" "$STAGE/titansouls/titansouls-nextos"
 install -m 0755 -- "$PORT_DIR/port-env.sh" "$STAGE/titansouls/port-env.sh"
 install -m 0755 -- "$NXEXTRACT_UI" "$STAGE/titansouls/nxextract/nxextract-ui"
