@@ -18,10 +18,13 @@ in Spruce's already-working native 64-bit environment.
    game. Headless extraction is forbidden in this candidate.
 5. Test video, music/SFX, controls, save and SELECT+START exit.
 
-If the game does not boot, preserve these files without editing them:
+If the game does not boot, preserve every one of these files that exists,
+without editing it:
 
+- `titansouls/log.txt`
 - `titansouls/nxextract.log`
 - `titansouls/nxextract-ui.log`
+- `titansouls/nxphase-result.json`
 - `titansouls/titansouls-bootstrap.log`
 - `titansouls/titansouls-runtime.log`
 - `titansouls/nxextract-result.json`
@@ -51,6 +54,6 @@ a tela do NXExtract usa o artefato canônico AArch64, aproveitando o ambiente
    NXSplash e jogo. Extração headless está proibida neste candidato.
 5. Teste vídeo, música/efeitos, controles, save e saída por SELECT+START.
 
-Se não iniciar, preserve sem editar os cinco arquivos de diagnóstico listados
-acima. O log registra a causa exata devolvida pela SDL 32-bit; uma camada que
-falhar encerra com erro real, nunca com sucesso falso.
+Se não iniciar, preserve sem editar todos os arquivos de diagnóstico listados
+acima que existirem. O log registra a causa exata devolvida pela SDL 32-bit;
+uma camada que falhar encerra com erro real, nunca com sucesso falso.

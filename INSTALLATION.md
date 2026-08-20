@@ -66,8 +66,9 @@ rejected before a working installation is replaced. If setup fails, inspect
 `titansouls-bootstrap.log` and the game's separate stdout/stderr goes to
 `titansouls-runtime.log`; the previous copies use the `.prev.log` suffix. These
 distinct names avoid a case-insensitive `LOG.txt`/`log.txt` collision. Raw logs
-never belong in a public release. A support bundle must first be sanitized by
-the host-side observability tool and is not part of the ZIP.
+never belong in a public release. If the launcher stops before that rotation,
+preserve `log.txt` and `nxphase-result.json` as well. A support bundle must first
+be sanitized by the host-side observability tool and is not part of the ZIP.
 
 ## Português
 
@@ -117,6 +118,7 @@ do launcher até começar a fase do jogo; então ele é preservado como
 `titansouls-bootstrap.log`, enquanto `titansouls-runtime.log` recebe o
 stdout/stderr separado do jogo. As cópias anteriores usam o sufixo `.prev.log`.
 Os nomes distintos evitam colisão entre `LOG.txt` e `log.txt` em sistemas sem
-distinção de maiúsculas. Logs brutos nunca entram na release pública. Um bundle
-de suporte precisa ser sanitizado antes pela ferramenta de observabilidade do
-host e não faz parte do ZIP.
+distinção de maiúsculas. Se o launcher parar antes dessa rotação, preserve
+também `log.txt` e `nxphase-result.json`. Logs brutos nunca entram na release
+pública. Um bundle de suporte precisa ser sanitizado antes pela ferramenta de
+observabilidade do host e não faz parte do ZIP.
