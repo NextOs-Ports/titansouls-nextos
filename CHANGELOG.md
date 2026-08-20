@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.0.8-candidate.1 — 2026-08-20 — OPT-IN CANDIDATE
+
+- Candidato final da promoção mixed-ABI, construído pelo pipeline real
+  (nxgenerator + nxbootstrap + nxrelease), não mais por materialização a
+  partir de um ZIP-base pinado.
+- `nxproject.json`/`nxport.json` passam a declarar `execution_roles` (schema 2):
+  extrator AArch64 nativo com closure de host; splash e jogo ARMHF por
+  `native-or-loader` com closure de firmware (e de port, no jogo). O launcher
+  0.6.27 roteia cada papel e emite `EXECUTION RECEIPT`.
+- NXExtract 1.2.13 com a UI canônica AArch64; NXSplash 0.1.2 byte-idêntica.
+- O executável ARMHF é **byte-idêntico** ao do teste de campo
+  `1.0.8-spruce-test.1`: só o lado host mudou.
+- Aceitação física no Miyoo Flip/spruceOS continua PENDENTE; sem ela não há
+  tag imutável nem release pública.
+
 ## 1.0.8-spruce-test.1 — 2026-08-20 — PRIVATE TEST
 
 - Candidato isolado para o runtime ARMHF montado pelo spruceOS no Miyoo Flip.

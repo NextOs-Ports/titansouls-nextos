@@ -38,21 +38,22 @@ NXGENERATOR="$FRAMEWORK_ROOT/nxgenerator/nxgenerator.py"
 NXABI="$FRAMEWORK_ROOT/nxabi/nxabi.py"
 NXBOOTSTRAP_ROOT="$FRAMEWORK_ROOT/nxbootstrap"
 NXCOMPAT_ROOT="$FRAMEWORK_ROOT/nxcompat"
-NXEXTRACT_UI_SOURCE="$NXEXTRACT_ROOT/ui/release/armv7/nxextract-ui"
+# Mixed-ABI: o extrator roda NATIVO no userspace AArch64 do host.
+NXEXTRACT_UI_SOURCE="$NXEXTRACT_ROOT/ui/release/aarch64/nxextract-ui"
 NXEXTRACT_LICENSE_SOURCE="$NXEXTRACT_ROOT/LICENSE"
 PACKAGE_RUNTIME="$PORT_DIR/.build/package-runtime"
 LAUNCHER_PATH="$PORT_DIR/Titan Souls.sh"
 MATERIALIZED_LAUNCHER=0
-NXRELEASE_VERSION=0.2.25
-NXRELEASE_SHA256=949222cdd20fcf4aec251f885734b8cfc644e059098d493cff63a0c2db968bde
-NXGENERATOR_VERSION=0.2.10
-NXGENERATOR_SHA256=8dabfa8b0e33d3c295b8813ca92c3098fce10248570e0e6e5c6f66077a3aadf3
-NXBOOTSTRAP_VERSION=0.6.26
-NXEXTRACT_VERSION=1.2.12
-NXEXTRACT_UI_SHA256=02ce707129b80ca1666f72c9e74792525dd2c7d2ada93bac5a93b9bfb41e3ff6
+NXRELEASE_VERSION=0.2.27
+NXRELEASE_SHA256=f303ddb32c5bff7bffab32b7c126627fec61ebbca883abac3942ff864f407bb4
+NXGENERATOR_VERSION=0.2.11
+NXGENERATOR_SHA256=2f9a8af68249d27abffac810f30d77965af8cea75c52f20d1c1bac21185b96c2
+NXBOOTSTRAP_VERSION=0.6.27
+NXEXTRACT_VERSION=1.2.13
+NXEXTRACT_UI_SHA256=7ca901d8515ab9a084be81e05888e1fd03cec80fb03896df6331c1c95698ef56
 MANIFEST="$PORT_DIR/nxrelease.json"
-DESTINATION=${1:-"$PORT_DIR/.build/release-1.0.7"}
-ARCHIVE_NAME=titansouls-1.0.7.zip
+DESTINATION=${1:-"$PORT_DIR/.build/release-1.0.8-candidate.1"}
+ARCHIVE_NAME=titansouls-1.0.8-candidate.1.zip
 
 fail() {
   printf 'titansouls package error: %s\n' "$*" >&2
@@ -83,7 +84,7 @@ require_pinned_file() {
   fail "NXExtract version drifted"
 require_pinned_file \
   "$FRAMEWORK_ROOT/nxgenerator/VERSION" \
-  011cfdb24c667a75861adfffaabe68e66358d982f437b47270ef09d86c6c6cd7 \
+  bbab81dca58f2b892db293acbba7fe5731667b67876f6812e3e7b9e2253a5c51 \
   "NXGenerator VERSION"
 require_pinned_file \
   "$FRAMEWORK_ROOT/nxgenerator/templates/README.md.in" \
@@ -91,15 +92,15 @@ require_pinned_file \
   "NXGenerator README template"
 require_pinned_file \
   "$NXBOOTSTRAP_ROOT/VERSION" \
-  282c67b413f96ae0f1b01eb8a826e5c1db9c2865e80b13b2be5ee2d3f8c768ec \
+  8759c4fa1e489f72c3df021cd56022d82e805c25d701c752f66fce797514124a \
   "NXBootstrap VERSION"
 require_pinned_file \
   "$NXBOOTSTRAP_ROOT/tools/generate-port.py" \
-  374022eb56a863899eccbef1e4376a43756712aee93e7d6e084958cbf7876faa \
+  ee5c461b45715d670aad2836a54317a14101b579a8b6ba069050e5346d401430 \
   "NXBootstrap generator"
 require_pinned_file \
   "$NXBOOTSTRAP_ROOT/templates/launcher.sh.in" \
-  6fe14745e508a67267a638e6749ca79661ab47e73a820e5f4f316085923cc6a8 \
+  bcb8dc5cb8637773bd9feae6289ce83229d137232f080646bc7eb7f89de37f47 \
   "NXBootstrap launcher template"
 require_pinned_file \
   "$NXCOMPAT_ROOT/capabilities-v1.json" \
@@ -107,15 +108,15 @@ require_pinned_file \
   "NXCompat capability registry"
 require_pinned_file \
   "$NXCOMPAT_ROOT/quirk-registry-v1.json" \
-  7744aef2de9bcbf189822187576a858c2430557edba0dcd4aeb1b9295a50d4f5 \
+  ffce1d43e33a5affcef294ffb9402351e5da96390de596309be0059ccdd522e8 \
   "NXCompat quirk registry"
 require_pinned_file \
   "$NXEXTRACT_ROOT/VERSION" \
-  c808fbaccc0ce69f91e3a684328fc872f2212b4233fbd81c40a076e8032e1236 \
+  c21698334b1e2308b8556ac1d10402342b8d3e837f65fa1c431eb23392824b1d \
   "NXExtract VERSION"
 require_pinned_file \
   "$NXEXTRACT_ROOT/nxextract.py" \
-  8a616b3246250ea976f0935f964d1be31df186836249dfdd061558a3428fea3f \
+  bd9788283f110dfa9cea62848b3fd49fd3293cae4b3854d7e096584df7e6c17f \
   "NXExtract runtime"
 require_pinned_file \
   "$NXEXTRACT_ROOT/run-extractor.sh" \

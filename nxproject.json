@@ -16,12 +16,36 @@
     "argument_mode": "none",
     "enabled_quirks": [],
     "executable": "titansouls-nextos",
+    "execution_roles": {
+      "extractor": {
+        "architecture": "aarch64",
+        "closure": "host",
+        "executable": "nxextract/nxextract-ui",
+        "executor": "native",
+        "interpreter": "/lib/ld-linux-aarch64.so.1"
+      },
+      "game": {
+        "architecture": "armv7",
+        "closure": "firmware-and-port",
+        "executable": "titansouls-nextos",
+        "executor": "native-or-loader",
+        "interpreter": "/lib/ld-linux-armhf.so.3"
+      },
+      "helpers": [],
+      "splash": {
+        "architecture": "armv7",
+        "closure": "firmware",
+        "executable": "nxsplash-nextos",
+        "executor": "native-or-loader",
+        "interpreter": "/lib/ld-linux-armhf.so.3"
+      }
+    },
     "home_mode": "port",
     "id": "titansouls",
     "launcher_name": "Titan Souls.sh",
     "nxextract": {
       "mode": "yes",
-      "version": "1.2.12"
+      "version": "1.2.13"
     },
     "prepare_script": "",
     "private_library_paths": [],
@@ -50,7 +74,8 @@
   },
   "portmaster": {
     "metadata_version": 4,
-    "min_glibc": "2.28"
+    "min_glibc": "2.28",
+    "runtime": []
   },
-  "schema_version": 1
+  "schema_version": 2
 }

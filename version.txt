@@ -1,1 +1,1 @@
-1.0.8-spruce-test.1
+1.0.8-candidate.1
